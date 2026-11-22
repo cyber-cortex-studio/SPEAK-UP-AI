@@ -1,5 +1,6 @@
 import { GEMINI_TTS_MODEL, getGenerateContentUrl } from './geminiConfig'
 import { getApiKey } from './keyVault'
+import { recordQuotaUsage, triggerQuotaCooldown } from './quotaTracker'
 
 export type SpeechRate = 0.75 | 1.0 | 1.2
 
@@ -201,6 +202,7 @@ async function fetchTtsAudioUrl(
 
     if (!response.ok) {
       if (response.status === 429) {
+        triggerQuotaCooldown('tts', 45)
         throw new TtsError('rate_limited', 'TTS quota limit reached')
       }
       throw new TtsError('tts_failed', `TTS HTTP error: ${response.status}`)
@@ -215,6 +217,7 @@ async function fetchTtsAudioUrl(
     const pcmBytes = base64ToUint8Array(base64Audio)
     const wavBlob = pcmToWavBlob(pcmBytes)
     const blobUrl = URL.createObjectURL(wavBlob)
+    recordQuotaUsage('tts')
     setCachedUrl(cacheKey, blobUrl)
     return blobUrl
   } catch (err: unknown) {

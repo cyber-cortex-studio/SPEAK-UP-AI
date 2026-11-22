@@ -1,5 +1,6 @@
 import { GEMINI_COACH_MODEL, getGenerateContentUrl } from './geminiConfig'
 import { getApiKey } from './keyVault'
+import { recordQuotaUsage, triggerQuotaCooldown } from './quotaTracker'
 import { CoachTurnResponseSchema, type CoachTurnResponse } from '../schemas/validators'
 
 export type GeminiErrorCode =
@@ -56,6 +57,7 @@ interface GeminiRawResponse {
 const REQUEST_TIMEOUT_MS = 25_000
 const MAX_HISTORY_TURNS = 8
 let consecutive429Count = 0
+  recordQuotaUsage('coach')
 
 function stripMarkdownFences(raw: string): string {
   const trimmed = raw.trim()
@@ -188,6 +190,7 @@ export async function sendCoachTurn(req: CoachTurnRequest): Promise<CoachTurnRes
       if (consecutive429Count >= 2) {
         throw new GeminiClientError('rate_limited_rpd', 'Daily free-tier quota may be exhausted')
       }
+      triggerQuotaCooldown('coach', 45)
       throw new GeminiClientError('rate_limited_rpm', 'Rate limit hit, wait before retrying', 45)
     }
     if (response.status === 400) {

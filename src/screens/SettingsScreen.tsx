@@ -18,6 +18,7 @@ import {
   type VoiceProfileId,
 } from '../ai/voicePreferences'
 import { VoicePicker } from '../components/VoicePicker'
+import { QuotaStatusCard } from '../components/QuotaStatusCard'
 
 const SPEED_OPTIONS: SpeechRate[] = [0.75, 1.0, 1.2]
 const BENGALI_LEVELS: Array<{ id: BengaliSupportLevel; label: string }> = [
@@ -374,6 +375,8 @@ export function SettingsScreen() {
           {storageMode === 'none' ? 'Setup Gemini API Key' : 'Manage / Change API Key'}
         </button>
       </section>
+
+      <QuotaStatusCard />
 
       {/* AI Voice Picker */}
       <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
