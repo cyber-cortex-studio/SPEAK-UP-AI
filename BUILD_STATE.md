@@ -2,7 +2,7 @@
 
 - **Active Blueprint:** v10.1 Gold Master (with Owner Android-Only & 2GB RAM Overrides)
 - **Project Folder:** GEMINI-SPEAK-UP-AI-V2
-- **Current Step:** Step 3.3 Completed
+- **Current Step:** Step 4.1 Completed
 
 ## Owner Architectural Overrides (Active & Locked)
 1. **100% Android-Only Target:** Built strictly for Android browsers (Chrome, Brave, Edge). Zero iOS/Safari code (`audio/mp4`, `webkitAudioContext` removed).
@@ -19,8 +19,8 @@
 ## Completed Steps
 - [x] Step 1.1 - 1.8: Strict Mobile-Only PWA Shell, Sun/Moon Theme Toggle, Oxlint Security Rules, Production Build & Commit
 - [x] Step 2.1 - 2.9: Gemini Config, Key Vault, Android-Only 16kbps Audio Recorder, Zod Validators, Gemini Client, Gemini TTS (7-voice RAM cache), 8-Voice Picker, SettingsScreen with 6-step Guide & Live Quota Tracker
-- [x] Step 3.1 & 3.2: Created Zod content schemas (`src/schemas/contentSchemas.ts`), seeded `src/content/curriculum.json` (10 lessons across 4 modes), and built `src/content/curriculumLoader.ts`
-- [x] Step 3.3: Built `src/ai/promptBuilder.ts`, `src/components/CoachMessageBubble.tsx`, and voice-first `src/screens/CoachScreen.tsx`
+- [x] Step 3.1 - 3.3: Zod content schemas, curriculum.json (10 lessons), curriculumLoader, promptBuilder, CoachMessageBubble, voice-first CoachScreen
+- [x] Step 4.1: Implemented Dexie.js IndexedDB (`src/db/speakupDb.ts`) and wired non-blocking turn/mistake/phrase persistence into `CoachScreen.tsx`
 
 ## Next Step
-- [ ] Step 4.1: Set up Dexie.js IndexedDB local persistence (`src/db/speakupDb.ts`) for Progress, Speaking Time, Mistake Cards, and Saved Phrases
+- [ ] Step 4.2: Build `src/screens/ProgressScreen.tsx` (Speaking Time, Mistake Cards review with Mastered/Delete, Saved Phrases) and upgrade `src/screens/HomeScreen.tsx` with live daily stats & quick-start cards

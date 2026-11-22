@@ -7,6 +7,7 @@ import { buildCoachSystemPrompt } from '../ai/promptBuilder'
 import { getVoiceById, loadVoiceSettings } from '../ai/voicePreferences'
 import { CoachMessageBubble, type ChatMessage } from '../components/CoachMessageBubble'
 import { getLessonsByMode } from '../content/curriculumLoader'
+import { addSavedPhrase, recordCompletedTurn } from '../db/speakupDb'
 import type { LessonItem, PracticeMode } from '../schemas/contentSchemas'
 
 const MODE_TABS: Array<{ id: PracticeMode; label: string }> = [
@@ -126,6 +127,7 @@ export function CoachScreen() {
   const submitTurn = async (payload: {
     userText?: string
     userAudio?: { base64: string; mimeType: string }
+    durationSeconds?: number
   }) => {
     if (!activeLesson || isSending) {
       return
@@ -176,6 +178,17 @@ export function CoachScreen() {
 
       setMessages((prev) => [...prev, userMsg, coachMsg].slice(-MAX_VISIBLE_MESSAGES))
 
+      void recordCompletedTurn({
+        lessonId: activeLesson.id,
+        speakingSeconds: payload.durationSeconds ?? 0,
+        skill: result.evidenceProposal.skill,
+        outcome: result.evidenceProposal.outcome,
+        confidence: result.evidenceProposal.confidence,
+        correction: result.correction,
+      }).catch(() => {
+        // Non-blocking: local DB failure should never interrupt live coaching
+      })
+
       if (settings.voiceEnabled) {
         void playCoachVoice(coachMsgId, result.reply)
       }
@@ -221,6 +234,7 @@ export function CoachScreen() {
       const audio = await recorder.stop()
       await submitTurn({
         userAudio: { base64: audio.base64, mimeType: audio.mimeType },
+        durationSeconds: audio.durationSeconds,
       })
     } catch (err: unknown) {
       if (err instanceof AudioRecorderError) {
@@ -377,6 +391,9 @@ export function CoachScreen() {
               void playCoachVoice(id, text)
             }}
             onSelectWord={setActiveWordTip}
+            onSavePhrase={(phrase, noteBn) => {
+              void addSavedPhrase(phrase, noteBn).catch(() => {})
+            }}
           />
         ))}
 

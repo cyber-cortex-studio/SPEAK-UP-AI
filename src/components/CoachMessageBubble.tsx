@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { CoachTurnResponse } from '../schemas/validators'
 
 export interface ChatMessage {
@@ -16,6 +17,7 @@ interface CoachMessageBubbleProps {
   isPlaying: boolean
   onPlayVoice: (messageId: string, text: string) => void
   onSelectWord: (wordTip: { word: string; meaningBn: string }) => void
+  onSavePhrase?: (phrase: string, noteBn?: string) => void
 }
 
 export function CoachMessageBubble({
@@ -23,8 +25,18 @@ export function CoachMessageBubble({
   isPlaying,
   onPlayVoice,
   onSelectWord,
+  onSavePhrase,
 }: CoachMessageBubbleProps) {
+  const [phraseSaved, setPhraseSaved] = useState(false)
   const isUser = message.role === 'user'
+
+  const handleSaveBetter = () => {
+    if (!message.sayItBetter || !onSavePhrase || phraseSaved) {
+      return
+    }
+    onSavePhrase(message.sayItBetter, message.bengaliHint ?? '')
+    setPhraseSaved(true)
+  }
 
   return (
     <div
@@ -74,11 +86,23 @@ export function CoachMessageBubble({
 
       {/* Say It Better Upgrade */}
       {!isUser && message.sayItBetter && (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-2.5 text-xs">
-          <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-            Say it naturally:{' '}
-          </span>
-          <span>{message.sayItBetter}</span>
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-2.5 text-xs flex items-center justify-between gap-2">
+          <div>
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+              Say it naturally:{' '}
+            </span>
+            <span>{message.sayItBetter}</span>
+          </div>
+          {onSavePhrase && (
+            <button
+              type="button"
+              disabled={phraseSaved}
+              onClick={handleSaveBetter}
+              className="shrink-0 px-2.5 py-1 rounded-lg border border-emerald-500/40 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 cursor-pointer disabled:opacity-60"
+            >
+              {phraseSaved ? 'Saved' : 'Save'}
+            </button>
+          )}
         </div>
       )}
 
