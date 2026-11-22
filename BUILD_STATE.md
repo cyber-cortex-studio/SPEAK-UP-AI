@@ -1,27 +1,16 @@
 # SpeakUp AI V1 — Build State
 
-- **Active Blueprint:** v10.1 Gold Master (with Owner Android-Only & 2GB RAM Overrides)
+- **Active Blueprint:** v10.2 Unlimited Android Voice Edition
 - **Project Folder:** GEMINI-SPEAK-UP-AI-V2
-- **Current Step:** Step 4.2 Completed (Core V1 App Feature-Complete)
+- **Current Step:** Step 4.3 Completed (Unlimited Android Google Voice Engine Active)
 
-## Owner Architectural Overrides (Active & Locked)
-1. **100% Android-Only Target:** Built strictly for Android browsers (Chrome, Brave, Edge). Zero iOS/Safari code (`audio/mp4`, `webkitAudioContext` removed).
-2. **Strict Mobile-Only UI:** `max-w-[430px]` centered mobile frame across all devices (no desktop sidebar), with Sun/Moon Dark & Light mode toggle.
-3. **2GB RAM & Battery Ultra-Light Optimization:**
-   - `16 kbps` Opus audio bitrate (`audio/webm;codecs=opus`) with 60s auto-stop & 1 MB cap.
-   - Immediate mic track release (`stream.getTracks().forEach(t => t.stop())`) and chunk cleanup.
-   - RAM TTS Audio LRU Cache strictly capped at **7 voices** (older entries evicted via `URL.revokeObjectURL()`).
-   - Zero background polling/intervals, zero audio stored in IndexedDB, flat zero-lag UI, max 20 visible messages in DOM, max 50 cards queried in Progress.
-4. **Voice Priority:** 8 verified Gemini TTS voices (4 Female + 4 Male, Indian & American) in `src/content/voices.json`.
-5. **Live Quota & Security:** Client-side live free-tier quota & cooldown tracker (`src/ai/quotaTracker.ts`), calm security alert, and click-by-click setup/replace API key guides.
-6. **Android Hardware Back Button:** Native hash-history navigation with duplicate-entry prevention and popup-first back dismissal.
-
-## Completed Steps
-- [x] Step 1.1 - 1.8: Strict Mobile-Only PWA Shell, Sun/Moon Theme Toggle, Oxlint Security Rules, Production Build & Commit
-- [x] Step 2.1 - 2.9: Gemini Config, Key Vault, Android-Only 16kbps Audio Recorder, Zod Validators, Gemini Client, Gemini TTS (7-voice RAM cache), 8-Voice Picker, SettingsScreen with 6-step Guide & Live Quota Tracker
-- [x] Step 3.1 - 3.3: Zod content schemas, curriculum.json (10 lessons), curriculumLoader, promptBuilder, CoachMessageBubble, voice-first CoachScreen
-- [x] Step 4.1: Implemented Dexie.js IndexedDB (`src/db/speakupDb.ts`) and wired non-blocking turn/mistake/phrase persistence into `CoachScreen.tsx`
-- [x] Step 4.2: Built `ProgressScreen.tsx` (Daily Stats, Mistake Cards, Saved Phrases, Two-Tap Reset) and live `HomeScreen.tsx`
+## Completed Steps (Detailed Log)
+- [x] **Step 1.1 - 1.8:** Vite + React + TypeScript + Tailwind v4 + PWA Shell (`max-w-[430px]`), Sun/Moon theme toggle, Oxlint security rules, production build & commit.
+- [x] **Step 2.1 - 2.4:** Gemini config (`geminiConfig.ts`), isolated BYOK Key Vault (`keyVault.ts`), Android-only 16kbps Opus recorder (`audioRecorder.ts`), Zod `CoachTurnResponseSchema` (`validators.ts`), and `geminiClient.ts` (`finishReason` check, sliding window, AbortController, smart 429).
+- [x] **Step 2.5 - 2.9:** SettingsScreen with 6-step beginner API key guide, 4-step Replace Key guide, calm security alert, and live client-side quota tracker (`quotaTracker.ts` & `QuotaStatusCard.tsx`).
+- [x] **Step 3.1 - 3.3:** Zod content schemas (`contentSchemas.ts`), 10-lesson `curriculum.json` across 4 modes, `curriculumLoader.ts`, `promptBuilder.ts`, `CoachMessageBubble.tsx`, and voice-first `CoachScreen.tsx`.
+- [x] **Step 4.1 - 4.2:** Dexie.js IndexedDB (`src/db/speakupDb.ts`) for daily stats, mistake cards, saved phrases, and skill evidence; built `ProgressScreen.tsx` and live `HomeScreen.tsx`.
+- [x] **Step 4.3:** Completely removed Gemini TTS (`geminiTts.ts`, `voices.json`) due to 10 RPD free-tier cap. Implemented **Unlimited Android Google Voice** (`src/ai/androidSpeech.ts` — top 8 Indian & American voices, 0 quota), updated `voicePreferences.ts`, `VoicePicker.tsx`, `SettingsScreen.tsx`, `QuotaStatusCard.tsx`, `CoachScreen.tsx`, and saved `ARCHITECTURE.md`.
 
 ## Next Step
-- [ ] Step 5.1: Automated Vitest unit tests (Zod validators, PCM-to-WAV header, Quota tracker) & Final Deployment Prep (GitHub Pages / Cloudflare Pages)
+- [ ] **Step 5.1:** Automated Vitest unit tests (Zod validators, curriculum loader, quota tracker) & Final Deployment Prep (GitHub Pages / Cloudflare Pages)

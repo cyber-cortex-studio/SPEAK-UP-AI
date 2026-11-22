@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { SpeechRate } from '../ai/androidSpeech'
 import {
   clearApiKey,
   getKeyStorageMode,
@@ -8,17 +9,14 @@ import {
   testApiKey,
   type KeyStorageMode,
 } from '../ai/keyVault'
-import type { SpeechRate } from '../ai/geminiTts'
 import {
   loadVoiceSettings,
   saveVoiceSettings,
   type BengaliSupportLevel,
   type UserVoiceSettings,
-  type VoiceGender,
-  type VoiceProfileId,
 } from '../ai/voicePreferences'
-import { VoicePicker } from '../components/VoicePicker'
 import { QuotaStatusCard } from '../components/QuotaStatusCard'
+import { VoicePicker } from '../components/VoicePicker'
 
 const SPEED_OPTIONS: SpeechRate[] = [0.75, 1.0, 1.2]
 const BENGALI_LEVELS: Array<{ id: BengaliSupportLevel; label: string }> = [
@@ -142,20 +140,11 @@ export function SettingsScreen() {
     setKeyStatus('API key removed from this phone.')
   }
 
-  const handleVoiceSelect = (gender: VoiceGender, profileId: VoiceProfileId) => {
-    updateSettings({
-      ...settings,
-      selectedGender: gender,
-      selectedProfileId: profileId,
-    })
-  }
-
   if (showKeySetup) {
     const activeSteps = guideTab === 'replace' ? REPLACE_KEY_STEPS : NEW_KEY_STEPS
 
     return (
       <div className="flex flex-col gap-4 p-4">
-        {/* Sub-screen Header */}
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -177,7 +166,6 @@ export function SettingsScreen() {
           </div>
         </div>
 
-        {/* Guide Mode Switcher */}
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
@@ -203,7 +191,6 @@ export function SettingsScreen() {
           </button>
         </div>
 
-        {/* Click-by-Click Visual Guide */}
         <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-sm font-semibold">
@@ -237,7 +224,6 @@ export function SettingsScreen() {
           </ol>
         </section>
 
-        {/* Key Input Vault */}
         <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold">Paste Your API Key</h3>
@@ -312,7 +298,6 @@ export function SettingsScreen() {
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      {/* Calm Security Check Alert (Shown only when key needs refresh) */}
       {securityAlert && (
         <section className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 flex flex-col gap-3">
           <div className="flex items-start justify-between gap-2">
@@ -346,7 +331,6 @@ export function SettingsScreen() {
         </section>
       )}
 
-      {/* Full-Width API Key Entry Card */}
       <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-base font-semibold">Gemini API Key</h2>
@@ -378,7 +362,6 @@ export function SettingsScreen() {
 
       <QuotaStatusCard />
 
-      {/* AI Voice Picker */}
       <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold">AI Coach Voice</h2>
@@ -398,14 +381,12 @@ export function SettingsScreen() {
         </div>
 
         <VoicePicker
-          selectedGender={settings.selectedGender}
-          selectedProfileId={settings.selectedProfileId}
+          selectedVoiceURI={settings.selectedVoiceURI}
           speechRate={settings.speechRate}
-          onSelect={handleVoiceSelect}
+          onSelect={(voiceURI) => updateSettings({ ...settings, selectedVoiceURI: voiceURI })}
         />
       </section>
 
-      {/* Playback Speed */}
       <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
         <h2 className="text-base font-semibold">Audio Speed</h2>
         <div className="grid grid-cols-3 gap-2">
@@ -429,7 +410,6 @@ export function SettingsScreen() {
         </div>
       </section>
 
-      {/* Bengali Support Level */}
       <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
         <h2 className="text-base font-semibold">Bengali Support Level</h2>
         <div className="grid grid-cols-3 gap-2">

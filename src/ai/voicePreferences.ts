@@ -1,62 +1,21 @@
-import voicesData from '../content/voices.json'
-import type { SpeechRate } from './geminiTts'
+import type { SpeechRate } from './androidSpeech'
 
-export type VoiceGender = 'female' | 'male'
-export type VoiceProfileId =
-  | 'female_1'
-  | 'female_2'
-  | 'female_3'
-  | 'female_4'
-  | 'male_1'
-  | 'male_2'
-  | 'male_3'
-  | 'male_4'
 export type BengaliSupportLevel = 'high' | 'medium' | 'low'
 
-export interface VoiceProfile {
-  id: VoiceProfileId
-  gender: VoiceGender
-  displayName: string
-  providerVoiceId: string
-  locale: string
-  enabled: boolean
-}
-
 export interface UserVoiceSettings {
-  selectedGender: VoiceGender
-  selectedProfileId: VoiceProfileId
+  selectedVoiceURI: string
   speechRate: SpeechRate
   voiceEnabled: boolean
   bengaliLevel: BengaliSupportLevel
 }
 
-const SETTINGS_KEY = 'speakup_voice_settings'
-
-const VALID_PROFILE_IDS: ReadonlySet<string> = new Set([
-  'female_1',
-  'female_2',
-  'female_3',
-  'female_4',
-  'male_1',
-  'male_2',
-  'male_3',
-  'male_4',
-])
+const SETTINGS_KEY = 'speakup_voice_settings_v2'
 
 const DEFAULT_SETTINGS: UserVoiceSettings = {
-  selectedGender: 'female',
-  selectedProfileId: 'female_1',
+  selectedVoiceURI: '',
   speechRate: 1.0,
   voiceEnabled: true,
   bengaliLevel: 'high',
-}
-
-export function getAllVoices(): VoiceProfile[] {
-  return voicesData as VoiceProfile[]
-}
-
-export function getVoiceById(id: VoiceProfileId): VoiceProfile | undefined {
-  return getAllVoices().find((v) => v.id === id)
 }
 
 export function loadVoiceSettings(): UserVoiceSettings {
@@ -66,14 +25,9 @@ export function loadVoiceSettings(): UserVoiceSettings {
       return { ...DEFAULT_SETTINGS }
     }
     const parsed = JSON.parse(raw) as Partial<UserVoiceSettings>
-    const profileId =
-      typeof parsed.selectedProfileId === 'string' && VALID_PROFILE_IDS.has(parsed.selectedProfileId)
-        ? (parsed.selectedProfileId as VoiceProfileId)
-        : 'female_1'
 
     return {
-      selectedGender: parsed.selectedGender === 'male' ? 'male' : 'female',
-      selectedProfileId: profileId,
+      selectedVoiceURI: typeof parsed.selectedVoiceURI === 'string' ? parsed.selectedVoiceURI : '',
       speechRate:
         parsed.speechRate === 0.75 || parsed.speechRate === 1.0 || parsed.speechRate === 1.2
           ? parsed.speechRate

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import { speakWithAndroidVoice, stopAndroidSpeech } from '../ai/androidSpeech'
 import { AudioRecorderError, VoiceRecorder } from '../ai/audioRecorder'
 import { GeminiClientError, sendCoachTurn, type HistoryTurn } from '../ai/geminiClient'
-import { speakText, stopSpeech, TtsError } from '../ai/geminiTts'
 import { getApiKey, setKeySecurityAlert } from '../ai/keyVault'
 import { buildCoachSystemPrompt } from '../ai/promptBuilder'
-import { getVoiceById, loadVoiceSettings } from '../ai/voicePreferences'
+import { loadVoiceSettings } from '../ai/voicePreferences'
 import { CoachMessageBubble, type ChatMessage } from '../components/CoachMessageBubble'
 import { getLessonsByMode } from '../content/curriculumLoader'
 import { addSavedPhrase, recordCompletedTurn } from '../db/speakupDb'
@@ -28,7 +28,6 @@ export function CoachScreen() {
   const [isSending, setIsSending] = useState(false)
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
-  const [ttsNotice, setTtsNotice] = useState<string | null>(null)
   const [activeWordTip, setActiveWordTip] = useState<{ word: string; meaningBn: string } | null>(
     null,
   )
@@ -44,7 +43,7 @@ export function CoachScreen() {
     return () => {
       recorderRef.current?.cancel()
       abortRef.current?.abort()
-      stopSpeech()
+      stopAndroidSpeech()
     }
   }, [])
 
@@ -52,48 +51,37 @@ export function CoachScreen() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isSending])
 
-  const playCoachVoice = async (messageId: string, text: string) => {
-    const settings = loadVoiceSettings()
-    const voice = getVoiceById(settings.selectedProfileId)
-    if (!voice) {
-      return
-    }
-
+  const playCoachVoice = (messageId: string, text: string) => {
     if (speakingMessageId === messageId) {
-      stopSpeech()
+      stopAndroidSpeech()
       setSpeakingMessageId(null)
       return
     }
 
-    setTtsNotice(null)
+    const settings = loadVoiceSettings()
     setSpeakingMessageId(messageId)
 
-    try {
-      await speakText({
-        text,
-        providerVoiceId: voice.providerVoiceId,
-        rate: settings.speechRate,
-        onEnded: () => setSpeakingMessageId(null),
-      })
-    } catch (err: unknown) {
+    const started = speakWithAndroidVoice({
+      text,
+      voiceURI: settings.selectedVoiceURI || undefined,
+      rate: settings.speechRate,
+      onEnded: () => setSpeakingMessageId(null),
+      onError: () => setSpeakingMessageId(null),
+    })
+
+    if (!started) {
       setSpeakingMessageId(null)
-      if (err instanceof TtsError && err.code === 'rate_limited') {
-        setTtsNotice('Voice limit reached for this minute. You can still read & practice!')
-      } else if (err instanceof TtsError && err.code !== 'aborted') {
-        setTtsNotice('Could not play voice right now. Tap Play Voice to try again.')
-      }
     }
   }
 
   const startLesson = (lesson: LessonItem) => {
     recorderRef.current?.cancel()
     abortRef.current?.abort()
-    stopSpeech()
+    stopAndroidSpeech()
 
     const starterId = `starter_${Date.now()}`
     setActiveLesson(lesson)
     setStatusError(null)
-    setTtsNotice(null)
     setActiveWordTip(null)
     setMessages([
       {
@@ -105,22 +93,21 @@ export function CoachScreen() {
     ])
 
     const settings = loadVoiceSettings()
-    if (settings.voiceEnabled && getApiKey()) {
-      void playCoachVoice(starterId, lesson.starterPrompt)
+    if (settings.voiceEnabled) {
+      playCoachVoice(starterId, lesson.starterPrompt)
     }
   }
 
   const exitLesson = () => {
     recorderRef.current?.cancel()
     abortRef.current?.abort()
-    stopSpeech()
+    stopAndroidSpeech()
     setIsRecording(false)
     setIsSending(false)
     setSpeakingMessageId(null)
     setActiveLesson(null)
     setMessages([])
     setStatusError(null)
-    setTtsNotice(null)
     setActiveWordTip(null)
   }
 
@@ -134,9 +121,8 @@ export function CoachScreen() {
     }
 
     setStatusError(null)
-    setTtsNotice(null)
     setIsSending(true)
-    stopSpeech()
+    stopAndroidSpeech()
     setSpeakingMessageId(null)
 
     const controller = new AbortController()
@@ -190,7 +176,7 @@ export function CoachScreen() {
       })
 
       if (settings.voiceEnabled) {
-        void playCoachVoice(coachMsgId, result.reply)
+        playCoachVoice(coachMsgId, result.reply)
       }
     } catch (err: unknown) {
       if (err instanceof GeminiClientError) {
@@ -254,7 +240,7 @@ export function CoachScreen() {
       return
     }
     setStatusError(null)
-    stopSpeech()
+    stopAndroidSpeech()
     setSpeakingMessageId(null)
 
     if (!recorderRef.current) {
@@ -387,9 +373,7 @@ export function CoachScreen() {
             key={msg.id}
             message={msg}
             isPlaying={speakingMessageId === msg.id}
-            onPlayVoice={(id, text) => {
-              void playCoachVoice(id, text)
-            }}
+            onPlayVoice={(id, text) => playCoachVoice(id, text)}
             onSelectWord={setActiveWordTip}
             onSavePhrase={(phrase, noteBn) => {
               void addSavedPhrase(phrase, noteBn).catch(() => {})
@@ -424,14 +408,9 @@ export function CoachScreen() {
         </div>
       )}
 
-      {(statusError || ttsNotice) && (
-        <div className="px-4 pb-2 flex flex-col gap-1">
-          {statusError && (
-            <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{statusError}</p>
-          )}
-          {ttsNotice && (
-            <p className="text-xs font-medium text-amber-700 dark:text-amber-300">{ttsNotice}</p>
-          )}
+      {statusError && (
+        <div className="px-4 pb-2">
+          <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{statusError}</p>
         </div>
       )}
 
