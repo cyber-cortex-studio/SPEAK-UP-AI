@@ -1,0 +1,122 @@
+[
+  {
+    "id": "ft_daily_routine",
+    "stage": "pre_a1",
+    "mode": "free_talk",
+    "title": "My Daily Routine",
+    "titleBn": "আমার প্রতিদিনের রুটিন",
+    "description": "Talk about your morning, college, or daily habits in simple sentences.",
+    "starterPrompt": "Hi! Tell me, what time did you wake up today and what did you do first?",
+    "starterPromptBn": "তুমি আজ ক'টায় ঘুম থেকে উঠেছ আর প্রথমে কী করলে?",
+    "coachRole": "Friendly English coach helping a Bengali beginner talk about their daily routine using simple present and past tense.",
+    "targetSkill": "speaking"
+  },
+  {
+    "id": "ft_favorite_food",
+    "stage": "a1",
+    "mode": "free_talk",
+    "title": "Favorite Food & Meals",
+    "titleBn": "প্রিয় খাবার ও রান্না",
+    "description": "Describe what you like to eat and why you enjoy it.",
+    "starterPrompt": "Let us talk about food! What is your favorite meal at home, and why do you like it?",
+    "starterPromptBn": "বাড়ির কোন খাবারটা তোমার সবচেয়ে প্রিয় এবং কেন?",
+    "coachRole": "Warm English coach encouraging natural food vocabulary and simple opinion sentences.",
+    "targetSkill": "vocabulary"
+  },
+  {
+    "id": "ft_weekend_plan",
+    "stage": "a2",
+    "mode": "free_talk",
+    "title": "Weekend & Future Plans",
+    "titleBn": "ছুটির দিনের প্ল্যান",
+    "description": "Practice talking about upcoming plans using going to and will.",
+    "starterPrompt": "The weekend is coming! What are you planning to do this Sunday?",
+    "starterPromptBn": "আগামী রবিবারে তোমার কী করার প্ল্যান আছে?",
+    "coachRole": "Supportive coach helping the learner use future tense naturally without over-correcting.",
+    "targetSkill": "sentence"
+  },
+  {
+    "id": "rp_tea_stall",
+    "stage": "pre_a1",
+    "mode": "roleplay",
+    "title": "At a Cafe / Tea Stall",
+    "titleBn": "ক্যাফে বা চায়ের দোকানে অর্ডার",
+    "description": "Order tea, snacks, and ask for the bill politely.",
+    "starterPrompt": "Welcome! Would you like tea, coffee, or some snacks today?",
+    "starterPromptBn": "স্বাগতম! আজ কি চা, কফি নাকি কোনো স্ন্যাকস নেবেন?",
+    "coachRole": "Polite cafe waiter in a roleplay. Keep replies short (1-2 sentences) so the learner speaks more.",
+    "targetSkill": "speaking"
+  },
+  {
+    "id": "rp_asking_directions",
+    "stage": "a1",
+    "mode": "roleplay",
+    "title": "Asking for Directions",
+    "titleBn": "রাস্তা জিজ্ঞাসা করা",
+    "description": "Ask a stranger how to reach the nearest station or market.",
+    "starterPrompt": "Hello! You look a bit lost. Where are you trying to go?",
+    "starterPromptBn": "হ্যালো! আপনি কোথায় যেতে চাইছেন?",
+    "coachRole": "Helpful local resident in a roleplay giving simple directions and asking follow-up questions.",
+    "targetSkill": "repair"
+  },
+  {
+    "id": "rp_job_interview",
+    "stage": "b1",
+    "mode": "roleplay",
+    "title": "Self-Introduction (Interview)",
+    "titleBn": "ইন্টারভিউতে নিজের পরিচয়",
+    "description": "Introduce yourself, your skills, and your goals clearly.",
+    "starterPrompt": "Good morning! Thank you for coming. Could you please tell me a little about yourself?",
+    "starterPromptBn": "শুভ সকাল! দয়া করে নিজের সম্পর্কে একটু বলুন।",
+    "coachRole": "Calm, encouraging interviewer helping the learner build a clear and confident self-introduction.",
+    "targetSkill": "pronunciation"
+  },
+  {
+    "id": "lr_phone_call",
+    "stage": "a1",
+    "mode": "listen_reply",
+    "title": "Quick Phone Call",
+    "titleBn": "ছোট ফোন কল শুনে উত্তর দেওয়া",
+    "description": "Listen carefully to a short message and reply naturally.",
+    "starterPrompt": "Hey, I am at the bus stand right now. Should I wait for you here, or should I start walking?",
+    "starterPromptBn": "আমি এখন বাস স্ট্যান্ডে আছি। আমি কি এখানে অপেক্ষা করব নাকি হাঁটা শুরু করব?",
+    "coachRole": "Friend on a phone call. Speak clearly in short sentences and check if the learner understood.",
+    "targetSkill": "listening"
+  },
+  {
+    "id": "lr_meeting_time",
+    "stage": "a2",
+    "mode": "listen_reply",
+    "title": "Fixing a Meeting Time",
+    "titleBn": "দেখা করার সময় ঠিক করা",
+    "description": "Listen to a schedule change and suggest a new time.",
+    "starterPrompt": "Sorry, I cannot meet at 4 PM today because of a class. Can we meet at 6 PM instead?",
+    "starterPromptBn": "দুঃখিত, ক্লাস থাকায় আজ ৪টায় দেখা করতে পারব না। আমরা কি ৬টায় দেখা করতে পারি?",
+    "coachRole": "Classmate rescheduling a meeting. Help the learner confirm or negotiate time politely.",
+    "targetSkill": "listening"
+  },
+  {
+    "id": "qf_past_tense",
+    "stage": "a1",
+    "mode": "quick_fix",
+    "title": "3-Second Reflex: Yesterday",
+    "titleBn": "দ্রুত অনুশীলন: গতকালের কথা",
+    "description": "Answer quick questions about yesterday using correct past tense.",
+    "starterPrompt": "Quick question! Where did you go yesterday evening?",
+    "starterPromptBn": "চটপট উত্তর দাও: গতকাল সন্ধ্যায় তুমি কোথায় গিয়েছিলে?",
+    "coachRole": "Energetic coach running a fast past-tense reflex drill. Gently fix verb forms in 1 short line.",
+    "targetSkill": "grammar"
+  },
+  {
+    "id": "qf_polite_requests",
+    "stage": "a2",
+    "mode": "quick_fix",
+    "title": "3-Second Reflex: Polite Requests",
+    "titleBn": "দ্রুত অনুশীলন: ভদ্রভাবে অনুরোধ",
+    "description": "Practice using Could you, Would you mind, and Please.",
+    "starterPrompt": "Imagine you need a pen from a stranger. How would you ask politely?",
+    "starterPromptBn": "ধরো কোনো অচেনা মানুষের কাছ থেকে একটা কলম চাইবে—ভদ্রভাবে কীভাবে বলবে?",
+    "coachRole": "Coach running a polite-request reflex drill. Give 1 quick upgrade if the sentence sounds too direct.",
+    "targetSkill": "sentence"
+  }
+]
