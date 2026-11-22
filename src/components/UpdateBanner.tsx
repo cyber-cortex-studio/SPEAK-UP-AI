@@ -13,7 +13,7 @@ export function UpdateBanner() {
   return (
     <div
       role="alert"
-      className="fixed bottom-16 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-50 rounded-2xl border border-emerald-500/40 bg-slate-900 text-slate-100 dark:bg-slate-800 p-4 shadow-lg flex items-center justify-between gap-3"
+      className="fixed bottom-16 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[398px] z-50 rounded-2xl border border-emerald-500/40 bg-slate-900 text-slate-100 dark:bg-slate-800 p-4 shadow-lg flex items-center justify-between gap-3"
     >
       <div className="text-sm">
         <p className="font-semibold text-emerald-400">New Version Available</p>
