@@ -2,7 +2,15 @@ import voicesData from '../content/voices.json'
 import type { SpeechRate } from './geminiTts'
 
 export type VoiceGender = 'female' | 'male'
-export type VoiceProfileId = 'female_1' | 'female_2' | 'male_1' | 'male_2'
+export type VoiceProfileId =
+  | 'female_1'
+  | 'female_2'
+  | 'female_3'
+  | 'female_4'
+  | 'male_1'
+  | 'male_2'
+  | 'male_3'
+  | 'male_4'
 export type BengaliSupportLevel = 'high' | 'medium' | 'low'
 
 export interface VoiceProfile {
@@ -23,6 +31,17 @@ export interface UserVoiceSettings {
 }
 
 const SETTINGS_KEY = 'speakup_voice_settings'
+
+const VALID_PROFILE_IDS: ReadonlySet<string> = new Set([
+  'female_1',
+  'female_2',
+  'female_3',
+  'female_4',
+  'male_1',
+  'male_2',
+  'male_3',
+  'male_4',
+])
 
 const DEFAULT_SETTINGS: UserVoiceSettings = {
   selectedGender: 'female',
@@ -47,15 +66,14 @@ export function loadVoiceSettings(): UserVoiceSettings {
       return { ...DEFAULT_SETTINGS }
     }
     const parsed = JSON.parse(raw) as Partial<UserVoiceSettings>
+    const profileId =
+      typeof parsed.selectedProfileId === 'string' && VALID_PROFILE_IDS.has(parsed.selectedProfileId)
+        ? (parsed.selectedProfileId as VoiceProfileId)
+        : 'female_1'
+
     return {
       selectedGender: parsed.selectedGender === 'male' ? 'male' : 'female',
-      selectedProfileId:
-        parsed.selectedProfileId === 'female_1' ||
-        parsed.selectedProfileId === 'female_2' ||
-        parsed.selectedProfileId === 'male_1' ||
-        parsed.selectedProfileId === 'male_2'
-          ? parsed.selectedProfileId
-          : 'female_1',
+      selectedProfileId: profileId,
       speechRate:
         parsed.speechRate === 0.75 || parsed.speechRate === 1.0 || parsed.speechRate === 1.2
           ? parsed.speechRate

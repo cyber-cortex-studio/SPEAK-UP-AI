@@ -1,6 +1,7 @@
 import { GEMINI_COACH_MODEL, getModelInfoUrl } from './geminiConfig'
 
 const STORAGE_KEY = 'speakup_gemini_api_key'
+const ALERT_KEY = 'speakup_key_security_alert'
 
 export type KeyStorageMode = 'session' | 'local' | 'none'
 
@@ -31,6 +32,18 @@ export function getKeyStorageMode(): KeyStorageMode {
   return 'none'
 }
 
+export function hasKeySecurityAlert(): boolean {
+  return window.localStorage.getItem(ALERT_KEY) === '1'
+}
+
+export function setKeySecurityAlert(active: boolean): void {
+  if (active) {
+    window.localStorage.setItem(ALERT_KEY, '1')
+  } else {
+    window.localStorage.removeItem(ALERT_KEY)
+  }
+}
+
 export function saveApiKey(rawKey: string, rememberOnDevice: boolean): void {
   const trimmed = rawKey.trim()
   if (!trimmed) {
@@ -42,11 +55,13 @@ export function saveApiKey(rawKey: string, rememberOnDevice: boolean): void {
   } else {
     window.sessionStorage.setItem(STORAGE_KEY, trimmed)
   }
+  setKeySecurityAlert(false)
 }
 
 export function clearApiKey(): void {
   window.sessionStorage.removeItem(STORAGE_KEY)
   window.localStorage.removeItem(STORAGE_KEY)
+  setKeySecurityAlert(false)
 }
 
 export async function testApiKey(rawKey: string): Promise<KeyTestResult> {

@@ -2,7 +2,9 @@ import { useState } from 'react'
 import {
   clearApiKey,
   getKeyStorageMode,
+  hasKeySecurityAlert,
   saveApiKey,
+  setKeySecurityAlert,
   testApiKey,
   type KeyStorageMode,
 } from '../ai/keyVault'
@@ -24,11 +26,11 @@ const BENGALI_LEVELS: Array<{ id: BengaliSupportLevel; label: string }> = [
   { id: 'low', label: 'Low' },
 ]
 
-const API_KEY_STEPS = [
+const NEW_KEY_STEPS = [
   {
     step: 1,
     title: 'Open Google AI Studio',
-    detail: 'Tap the button below to open aistudio.google.com in Chrome.',
+    detail: 'Tap "Open AI Studio" below to open aistudio.google.com in Chrome.',
   },
   {
     step: 2,
@@ -53,15 +55,42 @@ const API_KEY_STEPS = [
   {
     step: 6,
     title: 'Paste & Save below',
-    detail: 'Come back here, paste the key in the box below, and tap "Test & Save Key".',
+    detail: 'Come back here, paste the key below, and tap "Test & Save Key".',
   },
 ]
 
+const REPLACE_KEY_STEPS = [
+  {
+    step: 1,
+    title: 'Open Google AI Studio',
+    detail: 'Tap "Open AI Studio" below to view your existing API keys.',
+  },
+  {
+    step: 2,
+    title: 'Delete the old key',
+    detail: 'Find your old key in the list and tap the Trash / Delete icon to deactivate it safely.',
+  },
+  {
+    step: 3,
+    title: 'Create a fresh key',
+    detail: 'Tap "Create API key" to generate a brand-new private key.',
+  },
+  {
+    step: 4,
+    title: 'Copy & Save here',
+    detail: 'Copy the new key, paste it in the box below, and tap "Test & Save Key".',
+  },
+]
+
+type KeyGuideTab = 'setup' | 'replace'
+
 export function SettingsScreen() {
   const [showKeySetup, setShowKeySetup] = useState(false)
+  const [guideTab, setGuideTab] = useState<KeyGuideTab>('setup')
   const [keyInput, setKeyInput] = useState('')
   const [rememberKey, setRememberKey] = useState(true)
   const [storageMode, setStorageMode] = useState<KeyStorageMode>(() => getKeyStorageMode())
+  const [securityAlert, setSecurityAlert] = useState<boolean>(() => hasKeySecurityAlert())
   const [keyStatus, setKeyStatus] = useState<string | null>(null)
   const [isTestingKey, setIsTestingKey] = useState(false)
 
@@ -70,6 +99,12 @@ export function SettingsScreen() {
   const updateSettings = (next: UserVoiceSettings) => {
     setSettings(next)
     saveVoiceSettings(next)
+  }
+
+  const openKeyManager = (initialTab: KeyGuideTab) => {
+    setGuideTab(initialTab)
+    setKeyStatus(null)
+    setShowKeySetup(true)
   }
 
   const handleTestAndSaveKey = async () => {
@@ -86,10 +121,11 @@ export function SettingsScreen() {
     if (result.valid) {
       saveApiKey(keyInput, rememberKey)
       setStorageMode(getKeyStorageMode())
+      setSecurityAlert(false)
       setKeyInput('')
       setKeyStatus('Key verified and saved securely.')
     } else if (result.reason === 'invalid_key') {
-      setKeyStatus('Invalid API key. Check your key in Google AI Studio.')
+      setKeyStatus('This key did not work. Try creating a fresh key in Google AI Studio.')
     } else if (result.reason === 'timeout') {
       setKeyStatus('Verification timed out. Check your internet connection.')
     } else {
@@ -100,8 +136,9 @@ export function SettingsScreen() {
   const handleClearKey = () => {
     clearApiKey()
     setStorageMode('none')
+    setSecurityAlert(false)
     setKeyInput('')
-    setKeyStatus('API key removed from this browser.')
+    setKeyStatus('API key removed from this phone.')
   }
 
   const handleVoiceSelect = (gender: VoiceGender, profileId: VoiceProfileId) => {
@@ -113,6 +150,8 @@ export function SettingsScreen() {
   }
 
   if (showKeySetup) {
+    const activeSteps = guideTab === 'replace' ? REPLACE_KEY_STEPS : NEW_KEY_STEPS
+
     return (
       <div className="flex flex-col gap-4 p-4">
         {/* Sub-screen Header */}
@@ -123,34 +162,64 @@ export function SettingsScreen() {
               setShowKeySetup(false)
               setKeyStatus(null)
             }}
-            className="min-h-12 px-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+            className="min-h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
           >
             Back
           </button>
           <div>
-            <h2 className="text-base font-bold">Setup Gemini API Key</h2>
+            <h2 className="text-base font-bold">
+              {guideTab === 'replace' ? 'Change / Replace API Key' : 'Setup Gemini API Key'}
+            </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Free personal key from Google AI Studio
+              Private key stored only on your phone
             </p>
           </div>
+        </div>
+
+        {/* Guide Mode Switcher */}
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setGuideTab('setup')}
+            className={`min-h-12 rounded-xl border text-xs font-semibold cursor-pointer ${
+              guideTab === 'setup'
+                ? 'border-emerald-600 bg-emerald-600 text-white'
+                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300'
+            }`}
+          >
+            New Key Guide
+          </button>
+          <button
+            type="button"
+            onClick={() => setGuideTab('replace')}
+            className={`min-h-12 rounded-xl border text-xs font-semibold cursor-pointer ${
+              guideTab === 'replace'
+                ? 'border-emerald-600 bg-emerald-600 text-white'
+                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300'
+            }`}
+          >
+            Change / Replace Key
+          </button>
         </div>
 
         {/* Click-by-Click Visual Guide */}
         <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold">Step-by-Step Guide (1 Min)</h3>
+            <h3 className="text-sm font-semibold">
+              {guideTab === 'replace' ? 'Safe Key Replacement (1 Min)' : 'Step-by-Step Guide (1 Min)'}
+            </h3>
             <a
               href="https://aistudio.google.com/app/apikey"
               target="_blank"
               rel="noopener noreferrer"
-              className="min-h-10 px-3 rounded-xl bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 text-xs font-semibold flex items-center"
+              className="min-h-10 px-3.5 rounded-xl bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 text-xs font-semibold flex items-center"
             >
               Open AI Studio
             </a>
           </div>
 
           <ol className="flex flex-col gap-2.5">
-            {API_KEY_STEPS.map((item) => (
+            {activeSteps.map((item) => (
               <li
                 key={item.step}
                 className="flex items-start gap-3 rounded-xl bg-slate-50 dark:bg-slate-950 p-2.5 border border-slate-100 dark:border-slate-800"
@@ -204,7 +273,7 @@ export function SettingsScreen() {
               className="mt-0.5 h-4 w-4 accent-emerald-600"
             />
             <span>
-              Remember key on this phone (uncheck to clear automatically when you close the browser).
+              Remember key on this phone (uncheck to clear automatically when you close Chrome).
             </span>
           </label>
 
@@ -242,33 +311,67 @@ export function SettingsScreen() {
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      {/* Compact API Key Entry Card */}
-      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex items-center justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <h2 className="text-base font-semibold">Gemini API Key</h2>
-            <span
-              className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                storageMode === 'none'
-                  ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
-                  : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
-              }`}
+      {/* Calm Security Check Alert (Shown only when key needs refresh) */}
+      {securityAlert && (
+        <section className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 flex flex-col gap-3">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                Quick Safety Check
+              </h2>
+              <p className="text-xs text-amber-700 dark:text-amber-200/90 mt-1">
+                Your Gemini API key needs a quick refresh to keep your account safe. You can replace it easily in 1 minute.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setKeySecurityAlert(false)
+                setSecurityAlert(false)
+              }}
+              className="text-xs text-amber-700 dark:text-amber-300 px-2 py-1 cursor-pointer"
+              aria-label="Dismiss safety check"
             >
-              {storageMode === 'none' ? 'Required' : 'Connected'}
-            </span>
+              Dismiss
+            </button>
           </div>
-          <p className="text-xs text-slate-600 dark:text-slate-400">
-            {storageMode === 'none'
-              ? 'Follow 1-min step-by-step guide to connect.'
-              : 'Your personal Gemini key is active.'}
-          </p>
+          <button
+            type="button"
+            onClick={() => openKeyManager('replace')}
+            className="min-h-12 w-full rounded-xl bg-amber-600 hover:bg-amber-500 text-sm font-semibold text-white cursor-pointer"
+          >
+            Replace API Key Safely
+          </button>
+        </section>
+      )}
+
+      {/* Full-Width API Key Entry Card */}
+      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-base font-semibold">Gemini API Key</h2>
+          <span
+            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+              storageMode === 'none'
+                ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
+                : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
+            }`}
+          >
+            {storageMode === 'none' ? 'Not Connected' : 'Connected'}
+          </span>
         </div>
+
+        <p className="text-xs text-slate-600 dark:text-slate-400">
+          {storageMode === 'none'
+            ? 'Follow our simple 1-minute step-by-step guide to connect your free Gemini key.'
+            : 'Your personal Gemini key is active and sent only via secure headers.'}
+        </p>
+
         <button
           type="button"
-          onClick={() => setShowKeySetup(true)}
-          className="min-h-12 px-4 shrink-0 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white cursor-pointer"
+          onClick={() => openKeyManager(storageMode === 'none' ? 'setup' : 'replace')}
+          className="min-h-12 w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-sm font-semibold text-white cursor-pointer transition-colors"
         >
-          {storageMode === 'none' ? 'Setup Key' : 'Manage'}
+          {storageMode === 'none' ? 'Setup Gemini API Key' : 'Manage / Change API Key'}
         </button>
       </section>
 

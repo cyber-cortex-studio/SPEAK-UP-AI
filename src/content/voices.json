@@ -2,7 +2,7 @@
   {
     "id": "female_1",
     "gender": "female",
-    "displayName": "Female Voice 1 (Indian)",
+    "displayName": "Female 1 — Kore (Indian, Clear)",
     "providerVoiceId": "Kore",
     "locale": "en-IN",
     "enabled": true
@@ -10,15 +10,31 @@
   {
     "id": "female_2",
     "gender": "female",
-    "displayName": "Female Voice 2 (American)",
+    "displayName": "Female 2 — Aoede (American, Natural)",
     "providerVoiceId": "Aoede",
     "locale": "en-US",
     "enabled": true
   },
   {
+    "id": "female_3",
+    "gender": "female",
+    "displayName": "Female 3 — Vindemiatrix (Calm & Slow)",
+    "providerVoiceId": "Vindemiatrix",
+    "locale": "en-IN",
+    "enabled": true
+  },
+  {
+    "id": "female_4",
+    "gender": "female",
+    "displayName": "Female 4 — Leda (Crisp & Clear)",
+    "providerVoiceId": "Leda",
+    "locale": "en-IN",
+    "enabled": true
+  },
+  {
     "id": "male_1",
     "gender": "male",
-    "displayName": "Male Voice 1 (Indian)",
+    "displayName": "Male 1 — Puck (Indian, Friendly)",
     "providerVoiceId": "Puck",
     "locale": "en-IN",
     "enabled": true
@@ -26,9 +42,25 @@
   {
     "id": "male_2",
     "gender": "male",
-    "displayName": "Male Voice 2 (American)",
+    "displayName": "Male 2 — Charon (American, Steady)",
     "providerVoiceId": "Charon",
     "locale": "en-US",
+    "enabled": true
+  },
+  {
+    "id": "male_3",
+    "gender": "male",
+    "displayName": "Male 3 — Iapetus (Clear & Articulated)",
+    "providerVoiceId": "Iapetus",
+    "locale": "en-IN",
+    "enabled": true
+  },
+  {
+    "id": "male_4",
+    "gender": "male",
+    "displayName": "Male 4 — Orus (Calm & Measured)",
+    "providerVoiceId": "Orus",
+    "locale": "en-IN",
     "enabled": true
   }
 ]
