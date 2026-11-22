@@ -24,9 +24,43 @@ const BENGALI_LEVELS: Array<{ id: BengaliSupportLevel; label: string }> = [
   { id: 'low', label: 'Low' },
 ]
 
+const API_KEY_STEPS = [
+  {
+    step: 1,
+    title: 'Open Google AI Studio',
+    detail: 'Tap the button below to open aistudio.google.com in Chrome.',
+  },
+  {
+    step: 2,
+    title: 'Sign in with Gmail',
+    detail: 'Log in using your normal Google / Gmail account.',
+  },
+  {
+    step: 3,
+    title: 'Tap "Get API key"',
+    detail: 'Open the left menu (or top bar) and tap "Get API key".',
+  },
+  {
+    step: 4,
+    title: 'Tap "Create API key"',
+    detail: 'Tap the blue "Create API key" button and confirm if asked.',
+  },
+  {
+    step: 5,
+    title: 'Copy your new key',
+    detail: 'Tap the Copy icon next to the generated key (starts with AIza...).',
+  },
+  {
+    step: 6,
+    title: 'Paste & Save below',
+    detail: 'Come back here, paste the key in the box below, and tap "Test & Save Key".',
+  },
+]
+
 export function SettingsScreen() {
+  const [showKeySetup, setShowKeySetup] = useState(false)
   const [keyInput, setKeyInput] = useState('')
-  const [rememberKey, setRememberKey] = useState(false)
+  const [rememberKey, setRememberKey] = useState(true)
   const [storageMode, setStorageMode] = useState<KeyStorageMode>(() => getKeyStorageMode())
   const [keyStatus, setKeyStatus] = useState<string | null>(null)
   const [isTestingKey, setIsTestingKey] = useState(false)
@@ -78,78 +112,164 @@ export function SettingsScreen() {
     })
   }
 
-  return (
-    <div className="flex flex-col gap-4 p-4">
-      {/* Gemini API Key Vault */}
-      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold">Gemini API Key Vault</h2>
-          <span
-            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-              storageMode === 'none'
-                ? 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
-            }`}
-          >
-            {storageMode === 'none'
-              ? 'Not Set'
-              : storageMode === 'local'
-                ? 'Saved (Device)'
-                : 'Saved (Session)'}
-          </span>
-        </div>
-
-        <p className="text-xs text-slate-600 dark:text-slate-400">
-          Bring your own free-tier key from Google AI Studio. Sent only via header to Gemini.
-        </p>
-
-        <input
-          type="password"
-          value={keyInput}
-          onChange={(e) => setKeyInput(e.target.value)}
-          placeholder="Paste your Gemini API key..."
-          autoComplete="off"
-          spellCheck={false}
-          className="min-h-12 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 text-sm focus:outline-none focus:border-emerald-500"
-        />
-
-        <label className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={rememberKey}
-            onChange={(e) => setRememberKey(e.target.checked)}
-            className="mt-0.5 h-4 w-4 accent-emerald-600"
-          />
-          <span>
-            Remember key on this device (uses localStorage; leave unchecked to clear on tab close).
-          </span>
-        </label>
-
-        <div className="flex gap-2">
+  if (showKeySetup) {
+    return (
+      <div className="flex flex-col gap-4 p-4">
+        {/* Sub-screen Header */}
+        <div className="flex items-center gap-3">
           <button
             type="button"
-            disabled={isTestingKey}
             onClick={() => {
-              void handleTestAndSaveKey()
+              setShowKeySetup(false)
+              setKeyStatus(null)
             }}
-            className="min-h-12 flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-sm font-semibold text-white cursor-pointer disabled:opacity-50"
+            className="min-h-12 px-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
           >
-            {isTestingKey ? 'Testing...' : 'Test & Save Key'}
+            Back
           </button>
-          {storageMode !== 'none' && (
-            <button
-              type="button"
-              onClick={handleClearKey}
-              className="min-h-12 px-4 rounded-xl border border-rose-500/40 text-rose-600 dark:text-rose-400 text-xs font-semibold hover:bg-rose-500/10 cursor-pointer"
-            >
-              Clear
-            </button>
-          )}
+          <div>
+            <h2 className="text-base font-bold">Setup Gemini API Key</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Free personal key from Google AI Studio
+            </p>
+          </div>
         </div>
 
-        {keyStatus && (
-          <p className="text-xs font-medium text-slate-700 dark:text-slate-300">{keyStatus}</p>
-        )}
+        {/* Click-by-Click Visual Guide */}
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold">Step-by-Step Guide (1 Min)</h3>
+            <a
+              href="https://aistudio.google.com/app/apikey"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="min-h-10 px-3 rounded-xl bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 text-xs font-semibold flex items-center"
+            >
+              Open AI Studio
+            </a>
+          </div>
+
+          <ol className="flex flex-col gap-2.5">
+            {API_KEY_STEPS.map((item) => (
+              <li
+                key={item.step}
+                className="flex items-start gap-3 rounded-xl bg-slate-50 dark:bg-slate-950 p-2.5 border border-slate-100 dark:border-slate-800"
+              >
+                <span className="h-6 w-6 shrink-0 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">
+                  {item.step}
+                </span>
+                <div className="text-xs">
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">{item.title}</p>
+                  <p className="text-slate-600 dark:text-slate-400 mt-0.5">{item.detail}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* Key Input Vault */}
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold">Paste Your API Key</h3>
+            <span
+              className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                storageMode === 'none'
+                  ? 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                  : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
+              }`}
+            >
+              {storageMode === 'none'
+                ? 'Not Connected'
+                : storageMode === 'local'
+                  ? 'Connected (Device)'
+                  : 'Connected (Session)'}
+            </span>
+          </div>
+
+          <input
+            type="password"
+            value={keyInput}
+            onChange={(e) => setKeyInput(e.target.value)}
+            placeholder="Paste key starting with AIza..."
+            autoComplete="off"
+            spellCheck={false}
+            className="min-h-12 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 text-sm focus:outline-none focus:border-emerald-500"
+          />
+
+          <label className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={rememberKey}
+              onChange={(e) => setRememberKey(e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-emerald-600"
+            />
+            <span>
+              Remember key on this phone (uncheck to clear automatically when you close the browser).
+            </span>
+          </label>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={isTestingKey}
+              onClick={() => {
+                void handleTestAndSaveKey()
+              }}
+              className="min-h-12 flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-sm font-semibold text-white cursor-pointer disabled:opacity-50"
+            >
+              {isTestingKey ? 'Testing...' : 'Test & Save Key'}
+            </button>
+            {storageMode !== 'none' && (
+              <button
+                type="button"
+                onClick={handleClearKey}
+                className="min-h-12 px-4 rounded-xl border border-rose-500/40 text-rose-600 dark:text-rose-400 text-xs font-semibold hover:bg-rose-500/10 cursor-pointer"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          {keyStatus && (
+            <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+              {keyStatus}
+            </p>
+          )}
+        </section>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-4 p-4">
+      {/* Compact API Key Entry Card */}
+      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-semibold">Gemini API Key</h2>
+            <span
+              className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                storageMode === 'none'
+                  ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
+                  : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
+              }`}
+            >
+              {storageMode === 'none' ? 'Required' : 'Connected'}
+            </span>
+          </div>
+          <p className="text-xs text-slate-600 dark:text-slate-400">
+            {storageMode === 'none'
+              ? 'Follow 1-min step-by-step guide to connect.'
+              : 'Your personal Gemini key is active.'}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowKeySetup(true)}
+          className="min-h-12 px-4 shrink-0 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white cursor-pointer"
+        >
+          {storageMode === 'none' ? 'Setup Key' : 'Manage'}
+        </button>
       </section>
 
       {/* AI Voice Picker */}
