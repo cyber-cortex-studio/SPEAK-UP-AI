@@ -7,6 +7,7 @@ import {
   subscribeVoicesChanged,
   type AndroidVoiceOption,
   type SpeechRate,
+  type VoiceGender,
 } from '../ai/androidSpeech'
 
 interface VoicePickerProps {
@@ -17,6 +18,10 @@ interface VoicePickerProps {
 
 export function VoicePicker({ selectedVoiceURI, speechRate, onSelect }: VoicePickerProps) {
   const [voices, setVoices] = useState<AndroidVoiceOption[]>(() => getAvailableEnglishVoices())
+  const [activeGender, setActiveGender] = useState<VoiceGender>(() => {
+    const initial = getAvailableEnglishVoices().find((v) => v.voiceURI === selectedVoiceURI)
+    return initial?.gender ?? 'female'
+  })
   const [previewingURI, setPreviewingURI] = useState<string | null>(null)
   const supported = isAndroidSpeechSupported()
 
@@ -38,6 +43,9 @@ export function VoicePicker({ selectedVoiceURI, speechRate, onSelect }: VoicePic
     )
   }
 
+  const femaleVoices = voices.filter((v) => v.gender === 'female')
+  const maleVoices = voices.filter((v) => v.gender === 'male')
+  const visibleVoices = activeGender === 'female' ? femaleVoices : maleVoices
   const activeURI = selectedVoiceURI || voices[0]?.voiceURI || ''
 
   const handlePreview = (voice: AndroidVoiceOption) => {
@@ -66,21 +74,47 @@ export function VoicePicker({ selectedVoiceURI, speechRate, onSelect }: VoicePic
   }
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-        <span>Android Google Voices (Indian &amp; American)</span>
+        <span>Best Android Voices (Indian &amp; American)</span>
         <span className="font-semibold text-emerald-600 dark:text-emerald-400">
           Unlimited (0 Quota)
         </span>
       </div>
 
-      {voices.length === 0 ? (
+      {/* Female / Male Category Tabs */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveGender('female')}
+          className={`min-h-11 rounded-xl border text-xs font-semibold cursor-pointer transition-colors ${
+            activeGender === 'female'
+              ? 'border-emerald-600 bg-emerald-600 text-white'
+              : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300'
+          }`}
+        >
+          Female ({femaleVoices.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveGender('male')}
+          className={`min-h-11 rounded-xl border text-xs font-semibold cursor-pointer transition-colors ${
+            activeGender === 'male'
+              ? 'border-emerald-600 bg-emerald-600 text-white'
+              : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300'
+          }`}
+        >
+          Male ({maleVoices.length})
+        </button>
+      </div>
+
+      {visibleVoices.length === 0 ? (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3 text-xs text-slate-600 dark:text-slate-400">
           Default Android English voice will be used automatically.
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {voices.map((voice) => {
+          {visibleVoices.map((voice) => {
             const isSelected = voice.voiceURI === activeURI
             const isPlaying = previewingURI === voice.voiceURI
 

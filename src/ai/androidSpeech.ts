@@ -1,4 +1,5 @@
 export type SpeechRate = 0.75 | 1.0 | 1.2
+export type VoiceGender = 'female' | 'male'
 
 export interface AndroidVoiceOption {
   voiceURI: string
@@ -6,9 +7,32 @@ export interface AndroidVoiceOption {
   lang: string
   label: string
   isIndian: boolean
+  gender: VoiceGender
 }
 
-const MAX_ENGLISH_VOICES = 8
+const MAX_PER_GENDER = 4
+const MALE_PITCH_PREFIX = 'male_pitch::'
+
+const MALE_VOICE_TOKENS = [
+  'male',
+  'man',
+  'david',
+  'mark',
+  'guy',
+  'george',
+  'daniel',
+  'rishi',
+  'aaron',
+  'james',
+  'ryan',
+  'matthew',
+  '-end-',
+  '-ene-',
+  '-tpd-',
+  '-iom-',
+  '-iol-',
+  '-tpf-',
+]
 
 export function isAndroidSpeechSupported(): boolean {
   return (
@@ -16,6 +40,19 @@ export function isAndroidSpeechSupported(): boolean {
     'speechSynthesis' in window &&
     typeof SpeechSynthesisUtterance !== 'undefined'
   )
+}
+
+function detectVoiceGender(voice: SpeechSynthesisVoice): VoiceGender {
+  const combined = `${voice.name} ${voice.voiceURI}`.toLowerCase()
+  if (combined.includes('female') || combined.includes('woman')) {
+    return 'female'
+  }
+  for (const token of MALE_VOICE_TOKENS) {
+    if (combined.includes(token)) {
+      return 'male'
+    }
+  }
+  return 'female'
 }
 
 function scoreEnglishVoice(voice: SpeechSynthesisVoice): number {
@@ -42,10 +79,18 @@ function scoreEnglishVoice(voice: SpeechSynthesisVoice): number {
   return score
 }
 
-function formatVoiceLabel(voice: SpeechSynthesisVoice): string {
+function formatVoiceLabel(voice: SpeechSynthesisVoice, forcedGender?: VoiceGender): string {
   const lang = voice.lang.replace('_', '-')
   const cleanName = voice.name.replace(/\s*\([^)]*\)\s*/g, ' ').trim()
-  const accentTag = lang.toLowerCase() === 'en-in' ? 'Indian' : lang.toLowerCase() === 'en-us' ? 'American' : lang
+  const accentTag =
+    lang.toLowerCase() === 'en-in'
+      ? 'Indian'
+      : lang.toLowerCase() === 'en-us'
+        ? 'American'
+        : lang
+  if (forcedGender === 'male') {
+    return `${accentTag} Male (${cleanName})`
+  }
   return `${cleanName} (${accentTag})`
 }
 
@@ -55,32 +100,61 @@ export function getAvailableEnglishVoices(): AndroidVoiceOption[] {
   }
 
   const allVoices = window.speechSynthesis.getVoices()
-  const englishVoices = allVoices.filter((v) => v.lang.toLowerCase().startsWith('en'))
-
-  const sorted = [...englishVoices].sort((a, b) => scoreEnglishVoice(b) - scoreEnglishVoice(a))
+  const englishVoices = allVoices
+    .filter((v) => v.lang.toLowerCase().startsWith('en'))
+    .sort((a, b) => scoreEnglishVoice(b) - scoreEnglishVoice(a))
 
   const seen = new Set<string>()
-  const result: AndroidVoiceOption[] = []
+  const females: AndroidVoiceOption[] = []
+  const males: AndroidVoiceOption[] = []
 
-  for (const voice of sorted) {
+  for (const voice of englishVoices) {
     if (seen.has(voice.voiceURI)) {
       continue
     }
     seen.add(voice.voiceURI)
+
     const normalizedLang = voice.lang.replace('_', '-')
-    result.push({
+    const gender = detectVoiceGender(voice)
+    const option: AndroidVoiceOption = {
       voiceURI: voice.voiceURI,
       name: voice.name,
       lang: normalizedLang,
       label: formatVoiceLabel(voice),
       isIndian: normalizedLang.toLowerCase() === 'en-in',
-    })
-    if (result.length >= MAX_ENGLISH_VOICES) {
-      break
+      gender,
+    }
+
+    if (gender === 'male' && males.length < MAX_PER_GENDER) {
+      males.push(option)
+    } else if (gender === 'female' && females.length < MAX_PER_GENDER) {
+      females.push(option)
     }
   }
 
-  return result
+  // Fallback: if device exposes no native male voice, create natural deeper-pitch Male options
+  if (males.length === 0 && englishVoices.length > 0) {
+    const indianBase = englishVoices.find((v) => v.lang.toLowerCase().replace('_', '-') === 'en-in')
+    const usBase = englishVoices.find((v) => v.lang.toLowerCase().replace('_', '-') === 'en-us')
+    const fallbackBases = [indianBase, usBase].filter(
+      (v): v is SpeechSynthesisVoice => Boolean(v),
+    )
+    const bases = fallbackBases.length > 0 ? fallbackBases : [englishVoices[0]]
+
+    for (const base of bases) {
+      const normalizedLang = base.lang.replace('_', '-')
+      males.push({
+        voiceURI: `${MALE_PITCH_PREFIX}${base.voiceURI}`,
+        name: base.name,
+        lang: normalizedLang,
+        label: formatVoiceLabel(base, 'male'),
+        isIndian: normalizedLang.toLowerCase() === 'en-in',
+        gender: 'male',
+      })
+    }
+  }
+
+  return [...females, ...males]
 }
 
 export function subscribeVoicesChanged(onChange: () => void): () => void {
@@ -124,15 +198,19 @@ export function speakWithAndroidVoice(options: AndroidSpeakOptions): boolean {
   }
 
   const synth = window.speechSynthesis
-  // Clear any stuck speech queue on Android Chrome before speaking
   synth.cancel()
+
+  const isMalePitchFallback = Boolean(options.voiceURI?.startsWith(MALE_PITCH_PREFIX))
+  const targetURI = isMalePitchFallback
+    ? options.voiceURI?.slice(MALE_PITCH_PREFIX.length)
+    : options.voiceURI
 
   const utterance = new SpeechSynthesisUtterance(trimmed)
   const rawVoices = synth.getVoices()
 
   let chosenVoice: SpeechSynthesisVoice | undefined
-  if (options.voiceURI) {
-    chosenVoice = rawVoices.find((v) => v.voiceURI === options.voiceURI)
+  if (targetURI) {
+    chosenVoice = rawVoices.find((v) => v.voiceURI === targetURI)
   }
   if (!chosenVoice) {
     const englishVoices = rawVoices
@@ -149,7 +227,7 @@ export function speakWithAndroidVoice(options: AndroidSpeakOptions): boolean {
   }
 
   utterance.rate = options.rate
-  utterance.pitch = 1.0
+  utterance.pitch = isMalePitchFallback ? 0.8 : 1.0
 
   utterance.onend = () => {
     options.onEnded?.()
