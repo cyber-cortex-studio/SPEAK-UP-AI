@@ -1,0 +1,34 @@
+[
+  {
+    "id": "female_1",
+    "gender": "female",
+    "displayName": "Female Voice 1 (Indian)",
+    "providerVoiceId": "Kore",
+    "locale": "en-IN",
+    "enabled": true
+  },
+  {
+    "id": "female_2",
+    "gender": "female",
+    "displayName": "Female Voice 2 (American)",
+    "providerVoiceId": "Aoede",
+    "locale": "en-US",
+    "enabled": true
+  },
+  {
+    "id": "male_1",
+    "gender": "male",
+    "displayName": "Male Voice 1 (Indian)",
+    "providerVoiceId": "Puck",
+    "locale": "en-IN",
+    "enabled": true
+  },
+  {
+    "id": "male_2",
+    "gender": "male",
+    "displayName": "Male Voice 2 (American)",
+    "providerVoiceId": "Charon",
+    "locale": "en-US",
+    "enabled": true
+  }
+]
