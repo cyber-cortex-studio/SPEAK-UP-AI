@@ -1,0 +1,12 @@
+export function SettingsScreen() {
+  return (
+    <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
+        <h2 className="text-lg font-semibold">Settings &amp; Voice</h2>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          4-Voice Picker, playback speed, Bengali support level, and Gemini API Key Vault will live here.
+        </p>
+      </div>
+    </div>
+  )
+}
