@@ -3,7 +3,7 @@ export type QuotaBucket = 'coach'
 export const FREE_TIER_COACH_LIMITS = {
   rpm: 10,
   rpd: 250,
-}
+} as const
 
 export interface CoachQuotaSnapshot {
   usedThisMinute: number
@@ -23,6 +23,7 @@ const MINUTE_MS = 60_000
 
 let minuteTimestamps: number[] = []
 let cooldownUntil = 0
+let memoryDailyFallback: DailyStorageData | null = null
 
 const listeners = new Set<() => void>()
 
@@ -34,31 +35,58 @@ function getTodayKey(): string {
   return `${y}-${m}-${d}`
 }
 
-function loadDailyCount(): DailyStorageData {
-  const today = getTodayKey()
+function getSafeLocalStorage(): Storage | null {
   try {
-    const raw = window.localStorage.getItem(DAILY_STORAGE_KEY)
-    if (!raw) {
-      return { date: today, coach: 0 }
-    }
-    const parsed = JSON.parse(raw) as Partial<DailyStorageData>
-    if (parsed.date !== today) {
-      return { date: today, coach: 0 }
-    }
-    return {
-      date: today,
-      coach: typeof parsed.coach === 'number' ? parsed.coach : 0,
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return window.localStorage
     }
   } catch {
-    return { date: today, coach: 0 }
+    // Restricted browser context
   }
+  return null
+}
+
+function loadDailyCount(): DailyStorageData {
+  const today = getTodayKey()
+  const storage = getSafeLocalStorage()
+
+  if (storage) {
+    try {
+      const raw = storage.getItem(DAILY_STORAGE_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<DailyStorageData>
+        if (parsed.date === today && typeof parsed.coach === 'number' && parsed.coach >= 0) {
+          memoryDailyFallback = { date: today, coach: parsed.coach }
+          return memoryDailyFallback
+        }
+      }
+    } catch {
+      // Ignore corrupted JSON and fall back cleanly
+    }
+  }
+
+  if (memoryDailyFallback && memoryDailyFallback.date === today) {
+    return memoryDailyFallback
+  }
+
+  memoryDailyFallback = { date: today, coach: 0 }
+  return memoryDailyFallback
 }
 
 function saveDailyCount(data: DailyStorageData): void {
-  try {
-    window.localStorage.setItem(DAILY_STORAGE_KEY, JSON.stringify(data))
-  } catch {
-    // Ignore storage errors
+  const safeData: DailyStorageData = {
+    date: data.date,
+    coach: Math.max(0, Math.floor(data.coach)),
+  }
+  memoryDailyFallback = safeData
+
+  const storage = getSafeLocalStorage()
+  if (storage) {
+    try {
+      storage.setItem(DAILY_STORAGE_KEY, JSON.stringify(safeData))
+    } catch {
+      // Ignore storage quota or private-mode errors
+    }
   }
 }
 
@@ -78,13 +106,13 @@ export function recordQuotaUsage(_bucket: QuotaBucket = 'coach'): void {
   minuteTimestamps.push(now)
 
   const daily = loadDailyCount()
-  daily.coach += 1
-  saveDailyCount(daily)
+  saveDailyCount({ date: daily.date, coach: daily.coach + 1 })
   notifyListeners()
 }
 
 export function triggerQuotaCooldown(_bucket: QuotaBucket, seconds: number): void {
-  const target = Date.now() + Math.max(5, seconds) * 1000
+  const safeSeconds = Number.isFinite(seconds) ? Math.max(5, Math.ceil(seconds)) : 45
+  const target = Date.now() + safeSeconds * 1000
   if (target > cooldownUntil) {
     cooldownUntil = target
     notifyListeners()
