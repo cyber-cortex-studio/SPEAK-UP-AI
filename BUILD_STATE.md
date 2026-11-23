@@ -2,15 +2,11 @@
 
 - **Active Blueprint:** v10.2 Unlimited Android Voice Edition
 - **Project Folder:** GEMINI-SPEAK-UP-AI-V2
-- **Current Step:** Step 4.3 Completed (Unlimited Android Google Voice Engine Active)
+- **Current Step:** Step 5.1 Completed (V1 Release Ready)
 
-## Completed Steps (Detailed Log)
-- [x] **Step 1.1 - 1.8:** Vite + React + TypeScript + Tailwind v4 + PWA Shell (`max-w-[430px]`), Sun/Moon theme toggle, Oxlint security rules, production build & commit.
-- [x] **Step 2.1 - 2.4:** Gemini config (`geminiConfig.ts`), isolated BYOK Key Vault (`keyVault.ts`), Android-only 16kbps Opus recorder (`audioRecorder.ts`), Zod `CoachTurnResponseSchema` (`validators.ts`), and `geminiClient.ts` (`finishReason` check, sliding window, AbortController, smart 429).
-- [x] **Step 2.5 - 2.9:** SettingsScreen with 6-step beginner API key guide, 4-step Replace Key guide, calm security alert, and live client-side quota tracker (`quotaTracker.ts` & `QuotaStatusCard.tsx`).
-- [x] **Step 3.1 - 3.3:** Zod content schemas (`contentSchemas.ts`), 10-lesson `curriculum.json` across 4 modes, `curriculumLoader.ts`, `promptBuilder.ts`, `CoachMessageBubble.tsx`, and voice-first `CoachScreen.tsx`.
-- [x] **Step 4.1 - 4.2:** Dexie.js IndexedDB (`src/db/speakupDb.ts`) for daily stats, mistake cards, saved phrases, and skill evidence; built `ProgressScreen.tsx` and live `HomeScreen.tsx`.
-- [x] **Step 4.3:** Completely removed Gemini TTS (`geminiTts.ts`, `voices.json`) due to 10 RPD free-tier cap. Implemented **Unlimited Android Google Voice** (`src/ai/androidSpeech.ts` — top 8 Indian & American voices, 0 quota), updated `voicePreferences.ts`, `VoicePicker.tsx`, `SettingsScreen.tsx`, `QuotaStatusCard.tsx`, `CoachScreen.tsx`, and saved `ARCHITECTURE.md`.
-
-## Next Step
-- [ ] **Step 5.1:** Automated Vitest unit tests (Zod validators, curriculum loader, quota tracker) & Final Deployment Prep (GitHub Pages / Cloudflare Pages)
+## Completed Steps (Full V1 Summary)
+- [x] **Step 1.1 - 1.8:** Strict Mobile-Only PWA Shell (`max-w-[430px]`), Sun/Moon Theme Toggle, Oxlint security checks, production build & commit.
+- [x] **Step 2.1 - 2.9:** Gemini config, isolated BYOK Key Vault, Android-only `16 kbps` Opus audio recorder (`60s` auto-stop, `1 MB` cap, immediate mic release), Zod `CoachTurnResponseSchema` validators, `geminiClient.ts`, SettingsScreen with 6-step beginner guide + 4-step key replacement guide + calm security check, and live client-side quota/cooldown tracker (`quotaTracker.ts` & `QuotaStatusCard.tsx`).
+- [x] **Step 3.1 - 3.3:** Zod content schemas, 10-lesson `curriculum.json` across 4 modes (`Free Talk`, `Roleplay`, `Listen & Reply`, `Quick Fix`), `curriculumLoader.ts`, `promptBuilder.ts`, `CoachMessageBubble.tsx`, and voice-first `CoachScreen.tsx`.
+- [x] **Step 4.1 - 4.3:** Dexie.js IndexedDB (`src/db/speakupDb.ts`) for daily speaking stats, mistake cards, saved phrases, and skill evidence; `ProgressScreen.tsx` & live `HomeScreen.tsx`; removed Gemini TTS completely and implemented **Unlimited Android Google Voice** (`src/ai/androidSpeech.ts` — Female & Male tabs, Indian & American voices, `0` voice quota) + updated `ARCHITECTURE.md`.
+- [x] **Step 5.1:** Added unit tests (`quotaTracker.test.ts`, `curriculumLoader.test.ts`), `"test"` script in `package.json`, verified build & committed V1 release state.
