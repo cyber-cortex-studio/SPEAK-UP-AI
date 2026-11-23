@@ -1,22 +1,25 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ComponentType } from 'react'
+import { CoachIcon, ProgressIcon, SettingsIcon } from './components/NavIcons'
+import { UpdateBanner } from './components/UpdateBanner'
 import { CoachScreen } from './screens/CoachScreen'
 import { ProgressScreen } from './screens/ProgressScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
-import { PrivacyScreen } from './screens/PrivacyScreen'
-import { UpdateBanner } from './components/UpdateBanner'
 
-type Route = 'coach' | 'progress' | 'settings' | 'privacy'
+type Route = 'coach' | 'progress' | 'settings'
 
-const NAV_ITEMS: Array<{ id: Route; label: string }> = [
-  { id: 'coach', label: 'Coach' },
-  { id: 'progress', label: 'Progress' },
-  { id: 'settings', label: 'Settings' },
-  { id: 'privacy', label: 'Privacy' },
+const NAV_ITEMS: Array<{
+  id: Route
+  label: string
+  Icon: ComponentType<{ className?: string }>
+}> = [
+  { id: 'coach', label: 'Coach', Icon: CoachIcon },
+  { id: 'progress', label: 'Progress', Icon: ProgressIcon },
+  { id: 'settings', label: 'Settings', Icon: SettingsIcon },
 ]
 
 function parseRouteFromHash(): Route {
   const cleaned = window.location.hash.replace(/^#\/?/, '').toLowerCase()
-  if (cleaned === 'progress' || cleaned === 'settings' || cleaned === 'privacy') {
+  if (cleaned === 'progress' || cleaned === 'settings') {
     return cleaned
   }
   return 'coach'
@@ -114,7 +117,6 @@ export default function App() {
           {route === 'coach' && <CoachScreen />}
           {route === 'progress' && <ProgressScreen />}
           {route === 'settings' && <SettingsScreen />}
-          {route === 'privacy' && <PrivacyScreen />}
         </main>
 
         {/* Bottom Navigation */}
@@ -122,20 +124,21 @@ export default function App() {
           className="flex items-center justify-around border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pb-[env(safe-area-inset-bottom)] shrink-0"
           aria-label="Mobile Navigation"
         >
-          {NAV_ITEMS.map((item) => {
-            const active = route === item.id
+          {NAV_ITEMS.map(({ id, label, Icon }) => {
+            const active = route === id
             return (
               <button
-                key={item.id}
+                key={id}
                 type="button"
-                onClick={() => navigate(item.id)}
-                className={`min-h-12 flex-1 flex items-center justify-center text-xs font-semibold transition-colors cursor-pointer ${
+                onClick={() => navigate(id)}
+                className={`min-h-14 flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 text-[11px] font-semibold transition-colors cursor-pointer ${
                   active
                     ? 'text-emerald-600 dark:text-emerald-400'
                     : 'text-slate-500 dark:text-slate-400'
                 }`}
               >
-                {item.label}
+                <Icon className="w-5 h-5" />
+                <span>{label}</span>
               </button>
             )
           })}

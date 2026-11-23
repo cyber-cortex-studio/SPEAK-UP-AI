@@ -15,6 +15,8 @@ import {
   type BengaliSupportLevel,
   type UserVoiceSettings,
 } from '../ai/voicePreferences'
+import { DataPrivacyView } from '../components/DataPrivacyView'
+import { ChevronRightIcon, ShieldIcon } from '../components/NavIcons'
 import { QuotaStatusCard } from '../components/QuotaStatusCard'
 import { VoicePicker } from '../components/VoicePicker'
 
@@ -82,9 +84,10 @@ const REPLACE_KEY_STEPS = [
 ]
 
 type KeyGuideTab = 'setup' | 'replace'
+type SettingsSubView = 'main' | 'key_setup' | 'privacy'
 
 export function SettingsScreen() {
-  const [showKeySetup, setShowKeySetup] = useState(false)
+  const [subView, setSubView] = useState<SettingsSubView>('main')
   const [guideTab, setGuideTab] = useState<KeyGuideTab>('setup')
   const [keyInput, setKeyInput] = useState('')
   const [rememberKey, setRememberKey] = useState(true)
@@ -103,7 +106,7 @@ export function SettingsScreen() {
   const openKeyManager = (initialTab: KeyGuideTab) => {
     setGuideTab(initialTab)
     setKeyStatus(null)
-    setShowKeySetup(true)
+    setSubView('key_setup')
   }
 
   const handleTestAndSaveKey = async () => {
@@ -140,7 +143,17 @@ export function SettingsScreen() {
     setKeyStatus('API key removed from this phone.')
   }
 
-  if (showKeySetup) {
+  if (subView === 'privacy') {
+    return (
+      <DataPrivacyView
+        storageMode={storageMode}
+        onBack={() => setSubView('main')}
+        onOpenKeyManager={() => openKeyManager(storageMode === 'none' ? 'setup' : 'replace')}
+      />
+    )
+  }
+
+  if (subView === 'key_setup') {
     const activeSteps = guideTab === 'replace' ? REPLACE_KEY_STEPS : NEW_KEY_STEPS
 
     return (
@@ -149,7 +162,7 @@ export function SettingsScreen() {
           <button
             type="button"
             onClick={() => {
-              setShowKeySetup(false)
+              setSubView('main')
               setKeyStatus(null)
             }}
             className="min-h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
@@ -432,6 +445,25 @@ export function SettingsScreen() {
           })}
         </div>
       </section>
+
+      <button
+        type="button"
+        onClick={() => setSubView('privacy')}
+        className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex items-center justify-between gap-3 text-left hover:border-emerald-500 cursor-pointer transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="h-10 w-10 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <ShieldIcon className="w-5 h-5" />
+          </span>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold">Data &amp; Privacy</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              How your data is stored &amp; full control
+            </span>
+          </div>
+        </div>
+        <ChevronRightIcon className="w-4 h-4 text-slate-400 shrink-0" />
+      </button>
     </div>
   )
 }
