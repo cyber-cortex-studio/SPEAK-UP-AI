@@ -1,14 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
-import { speakWithAndroidVoice, stopAndroidSpeech } from '../ai/androidSpeech'
+import {
+  speakWithAndroidVoice,
+  stopAndroidSpeech,
+  type SpeechRate,
+} from '../ai/androidSpeech'
 import { AudioRecorderError, VoiceRecorder } from '../ai/audioRecorder'
 import { GeminiClientError, sendCoachTurn, type HistoryTurn } from '../ai/geminiClient'
 import { getApiKey, setKeySecurityAlert } from '../ai/keyVault'
-import { buildCoachSystemPrompt } from '../ai/promptBuilder'
-import { loadVoiceSettings } from '../ai/voicePreferences'
+import { buildCoachSystemPrompt, type PastMistakeMemory } from '../ai/promptBuilder'
+import { loadVoiceSettings, saveVoiceSettings } from '../ai/voicePreferences'
 import { CoachMessageBubble, type ChatMessage } from '../components/CoachMessageBubble'
-import { getLessonsByMode } from '../content/curriculumLoader'
-import { addSavedPhrase, recordCompletedTurn } from '../db/speakupDb'
+import { ForceRepeatCard } from '../components/ForceRepeatCard'
+import { MissionTrackerBar } from '../components/MissionTrackerBar'
+import { StuckChipsDrawer } from '../components/StuckChipsDrawer'
+import {
+  createCustomTalkLesson,
+  getDailyWarmup,
+  getLessonById,
+  getLessonsByMode,
+} from '../content/curriculumLoader'
+import { addSavedPhrase, db, recordCompletedTurn } from '../db/speakupDb'
 import type { LessonItem, PracticeMode } from '../schemas/contentSchemas'
+import type { AudioXRay, StuckChip } from '../schemas/validators'
 
 const MODE_TABS: Array<{ id: PracticeMode; label: string }> = [
   { id: 'free_talk', label: 'Free Talk' },
@@ -18,23 +31,57 @@ const MODE_TABS: Array<{ id: PracticeMode; label: string }> = [
 ]
 
 const MAX_VISIBLE_MESSAGES = 20
+const FORCE_REPEAT_VOICE_ID = 'force_repeat_target'
+const LAUNCH_LESSON_STORAGE_KEY = 'speakup_launch_lesson'
+
+async function loadRecentMistakes(): Promise<PastMistakeMemory[]> {
+  try {
+    const cards = await db.mistakeCards
+      .orderBy('createdAt')
+      .reverse()
+      .filter((card) => !card.mastered && card.betterWay.trim().length > 0)
+      .limit(2)
+      .toArray()
+
+    return cards.map((card) => ({
+      learnerSaid: card.learnerSaid,
+      betterWay: card.betterWay,
+    }))
+  } catch {
+    return []
+  }
+}
 
 export function CoachScreen() {
   const [selectedMode, setSelectedMode] = useState<PracticeMode>('free_talk')
+  const [customTopicInput, setCustomTopicInput] = useState('')
   const [activeLesson, setActiveLesson] = useState<LessonItem | null>(null)
+  const [activeCustomTopic, setActiveCustomTopic] = useState<string | undefined>(undefined)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [textInput, setTextInput] = useState('')
   const [isRecording, setIsRecording] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null)
+  const [selectedRate, setSelectedRate] = useState<SpeechRate>(
+    () => loadVoiceSettings().speechRate,
+  )
   const [statusError, setStatusError] = useState<string | null>(null)
   const [activeWordTip, setActiveWordTip] = useState<{ word: string; meaningBn: string } | null>(
     null,
   )
+  const [activeStuckChips, setActiveStuckChips] = useState<StuckChip[]>([])
+  const [pendingRepeat, setPendingRepeat] = useState<{ id: string; sentence: string } | null>(
+    null,
+  )
+  const [completedObjectiveIds, setCompletedObjectiveIds] = useState<string[]>([])
+  const [sessionXRayScores, setSessionXRayScores] = useState<AudioXRay[]>([])
+  const [recentMistakes, setRecentMistakes] = useState<PastMistakeMemory[]>([])
 
   const recorderRef = useRef<VoiceRecorder | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const speakingRateRef = useRef<SpeechRate>(selectedRate)
+  const selectedRateRef = useRef<SpeechRate>(selectedRate)
 
   const hasApiKey = Boolean(getApiKey())
   const lessons = getLessonsByMode(selectedMode)
@@ -51,20 +98,35 @@ export function CoachScreen() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isSending])
 
-  const playCoachVoice = (messageId: string, text: string) => {
-    if (speakingMessageId === messageId) {
+  const handleSelectRate = (rate: SpeechRate) => {
+    setSelectedRate(rate)
+    selectedRateRef.current = rate
+    const current = loadVoiceSettings()
+    saveVoiceSettings({ ...current, speechRate: rate })
+  }
+
+  const playCoachVoice = (
+    messageId: string,
+    text: string,
+    rateOverride?: SpeechRate,
+  ) => {
+    const effectiveRate = rateOverride ?? selectedRateRef.current
+
+    if (speakingMessageId === messageId && speakingRateRef.current === effectiveRate) {
       stopAndroidSpeech()
       setSpeakingMessageId(null)
       return
     }
 
     const settings = loadVoiceSettings()
+    stopAndroidSpeech()
+    speakingRateRef.current = effectiveRate
     setSpeakingMessageId(messageId)
 
     const started = speakWithAndroidVoice({
       text,
       voiceURI: settings.selectedVoiceURI || undefined,
-      rate: settings.speechRate,
+      rate: effectiveRate,
       onEnded: () => setSpeakingMessageId(null),
       onError: () => setSpeakingMessageId(null),
     })
@@ -74,15 +136,21 @@ export function CoachScreen() {
     }
   }
 
-  const startLesson = (lesson: LessonItem) => {
+  const startLesson = (lesson: LessonItem, customTopic?: string) => {
     recorderRef.current?.cancel()
     abortRef.current?.abort()
     stopAndroidSpeech()
 
     const starterId = `starter_${Date.now()}`
     setActiveLesson(lesson)
+    setActiveCustomTopic(customTopic?.trim() || undefined)
     setStatusError(null)
     setActiveWordTip(null)
+    setTextInput('')
+    setPendingRepeat(null)
+    setCompletedObjectiveIds([])
+    setSessionXRayScores([])
+    setActiveStuckChips(lesson.initialStuckChips)
     setMessages([
       {
         id: starterId,
@@ -92,10 +160,90 @@ export function CoachScreen() {
       },
     ])
 
+    void loadRecentMistakes().then((items) => {
+      setRecentMistakes(items)
+    })
+
     const settings = loadVoiceSettings()
     if (settings.voiceEnabled) {
-      playCoachVoice(starterId, lesson.starterPrompt)
+      playCoachVoice(starterId, lesson.starterPrompt, selectedRateRef.current)
     }
+  }
+
+  // Handle direct lesson or 60s Warm-up launch from Home / Learning Path
+  useEffect(() => {
+    let active = true
+    const launchPending = async () => {
+      let pendingLaunch: string | null = null
+      try {
+        pendingLaunch = window.sessionStorage.getItem(LAUNCH_LESSON_STORAGE_KEY)
+        if (pendingLaunch) {
+          window.sessionStorage.removeItem(LAUNCH_LESSON_STORAGE_KEY)
+        }
+      } catch {
+        return
+      }
+
+      if (!active || !pendingLaunch) return
+      const targetLesson =
+        pendingLaunch === '__daily_warmup__'
+          ? getDailyWarmup()
+          : getLessonById(pendingLaunch)
+      if (!targetLesson) return
+
+      const mistakes = await loadRecentMistakes()
+      if (!active) return
+
+      const starterId = `starter_${Date.now()}`
+      setActiveLesson(targetLesson)
+      setActiveCustomTopic(undefined)
+      setStatusError(null)
+      setActiveWordTip(null)
+      setTextInput('')
+      setPendingRepeat(null)
+      setCompletedObjectiveIds([])
+      setSessionXRayScores([])
+      setActiveStuckChips(targetLesson.initialStuckChips)
+      setRecentMistakes(mistakes)
+      setMessages([
+        {
+          id: starterId,
+          role: 'model',
+          text: targetLesson.starterPrompt,
+          bengaliHint: targetLesson.starterPromptBn,
+        },
+      ])
+
+      const settings = loadVoiceSettings()
+      if (settings.voiceEnabled) {
+        const rate = selectedRateRef.current
+        speakingRateRef.current = rate
+        setSpeakingMessageId(starterId)
+        const started = speakWithAndroidVoice({
+          text: targetLesson.starterPrompt,
+          voiceURI: settings.selectedVoiceURI || undefined,
+          rate,
+          onEnded: () => setSpeakingMessageId(null),
+          onError: () => setSpeakingMessageId(null),
+        })
+        if (!started) {
+          setSpeakingMessageId(null)
+        }
+      }
+    }
+
+    void launchPending()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const handleStartCustomTalk = () => {
+    const trimmed = customTopicInput.trim()
+    if (!trimmed) return
+    const customLesson = createCustomTalkLesson(trimmed)
+    setCustomTopicInput('')
+    startLesson(customLesson, trimmed)
   }
 
   const exitLesson = () => {
@@ -106,9 +254,23 @@ export function CoachScreen() {
     setIsSending(false)
     setSpeakingMessageId(null)
     setActiveLesson(null)
+    setActiveCustomTopic(undefined)
     setMessages([])
+    setTextInput('')
     setStatusError(null)
     setActiveWordTip(null)
+    setActiveStuckChips([])
+    setPendingRepeat(null)
+    setCompletedObjectiveIds([])
+    setSessionXRayScores([])
+  }
+
+  const clearPendingRepeat = () => {
+    if (speakingMessageId === FORCE_REPEAT_VOICE_ID) {
+      stopAndroidSpeech()
+      setSpeakingMessageId(null)
+    }
+    setPendingRepeat(null)
   }
 
   const submitTurn = async (payload: {
@@ -122,6 +284,7 @@ export function CoachScreen() {
 
     setStatusError(null)
     setIsSending(true)
+    clearPendingRepeat()
     stopAndroidSpeech()
     setSpeakingMessageId(null)
 
@@ -129,7 +292,14 @@ export function CoachScreen() {
     abortRef.current = controller
 
     const settings = loadVoiceSettings()
-    const systemInstruction = buildCoachSystemPrompt(activeLesson, settings.bengaliLevel)
+    const systemInstruction = buildCoachSystemPrompt(activeLesson, settings.bengaliLevel, {
+      missionObjectives: activeLesson.missionObjectives,
+      completedObjectiveIds,
+      recentMistakes,
+      customTopic: activeCustomTopic,
+      isAudioTurn: Boolean(payload.userAudio),
+      isWarmup: activeLesson.isWarmup,
+    })
     const history: HistoryTurn[] = messages.map((m) => ({
       role: m.role,
       text: m.text,
@@ -159,10 +329,41 @@ export function CoachScreen() {
         correction: result.correction,
         sayItBetter: result.sayItBetter,
         pronunciationNote: result.pronunciationNote,
+        bengaliPhoneticTip: result.audioXRay?.bengaliPhoneticTip,
+        bengaliBridgeUsed: result.bengaliBridgeUsed,
         wordMeanings: result.wordMeanings,
       }
 
       setMessages((prev) => [...prev, userMsg, coachMsg].slice(-MAX_VISIBLE_MESSAGES))
+
+      if (result.stuckChips.length > 0) {
+        setActiveStuckChips(result.stuckChips)
+      }
+
+      if (result.repeatTarget) {
+        setPendingRepeat({ id: coachMsgId, sentence: result.repeatTarget })
+      }
+
+      if (result.audioXRay) {
+        const latestXRay = result.audioXRay
+        setSessionXRayScores((prev) => [...prev, latestXRay])
+      }
+
+      if (
+        activeLesson.missionObjectives.length > 0 &&
+        result.completedObjectiveIds.length > 0
+      ) {
+        const validIds = new Set(activeLesson.missionObjectives.map((o) => o.id))
+        setCompletedObjectiveIds((prev) => {
+          const merged = new Set(prev)
+          for (const id of result.completedObjectiveIds) {
+            if (validIds.has(id)) {
+              merged.add(id)
+            }
+          }
+          return Array.from(merged)
+        })
+      }
 
       void recordCompletedTurn({
         lessonId: activeLesson.id,
@@ -170,13 +371,17 @@ export function CoachScreen() {
         skill: result.evidenceProposal.skill,
         outcome: result.evidenceProposal.outcome,
         confidence: result.evidenceProposal.confidence,
+        audioXRay: result.audioXRay,
         correction: result.correction,
-      }).catch(() => {
-        // Non-blocking: local DB failure should never interrupt live coaching
       })
+        .then(() => loadRecentMistakes())
+        .then((items) => setRecentMistakes(items))
+        .catch(() => {
+          // Non-blocking: local DB failure should never interrupt live coaching
+        })
 
       if (settings.voiceEnabled) {
-        playCoachVoice(coachMsgId, result.reply)
+        playCoachVoice(coachMsgId, result.reply, selectedRateRef.current)
       }
     } catch (err: unknown) {
       if (err instanceof GeminiClientError) {
@@ -192,10 +397,12 @@ export function CoachScreen() {
           setStatusError('Free-tier limit hit. Please wait 45 seconds and try again.')
         } else if (err.code === 'rate_limited_rpd') {
           setStatusError('Daily free-tier quota may be full. Try again later or check Settings.')
+        } else if (err.code === 'server_busy') {
+          setStatusError('Google AI servers are briefly busy. Tap Send again in a few seconds.')
         } else if (err.code === 'timeout') {
           setStatusError('Request timed out. Check your internet and try again.')
         } else {
-          setStatusError('Could not get a reply right now. Please try again.')
+          setStatusError('Could not reach the AI Coach right now. Please try again.')
         }
       } else {
         setStatusError('Something went wrong. Please try again.')
@@ -299,6 +506,40 @@ export function CoachScreen() {
           </div>
         )}
 
+        {/* Custom Talk (Talk About Anything in English or Bengali) */}
+        <div className="rounded-2xl border border-emerald-500/35 bg-emerald-500/5 dark:bg-emerald-950/20 p-3.5 flex flex-col gap-2">
+          <div>
+            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
+              Custom Talk (নিজের টপিকে কথা বলো)
+            </p>
+            <p className="text-[11px] text-slate-600 dark:text-slate-400">
+              যেকোনো বাস্তব পরিস্থিতি বা আড্ডার টপিক বাংলা বা ইংরেজিতে লেখো — ০ কোটায় রুম খুলবে।
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={customTopicInput}
+              onChange={(e) => setCustomTopicInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleStartCustomTalk()
+                }
+              }}
+              placeholder="যেমন: বন্ধুর সাথে ক্রিকেট নিয়ে আড্ডা..."
+              className="min-h-11 flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs focus:outline-none focus:border-emerald-500"
+            />
+            <button
+              type="button"
+              disabled={!customTopicInput.trim()}
+              onClick={handleStartCustomTalk}
+              className="min-h-11 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white cursor-pointer disabled:opacity-40"
+            >
+              Start
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-2">
           {MODE_TABS.map((tab) => {
             const active = selectedMode === tab.id
@@ -331,7 +572,7 @@ export function CoachScreen() {
                 <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   {lesson.title}
                 </span>
-                <span className="text-[11px] font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
+                <span className="shrink-0 text-[11px] font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
                   {lesson.stage.replace('_', '-')}
                 </span>
               </div>
@@ -339,6 +580,26 @@ export function CoachScreen() {
                 {lesson.titleBn}
               </p>
               <p className="text-xs text-slate-600 dark:text-slate-400">{lesson.description}</p>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] font-semibold">
+                <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                  ~{lesson.estimatedMinutes} min
+                </span>
+                {lesson.isWarmup && (
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300">
+                    60s Warm-up
+                  </span>
+                )}
+                {lesson.missionObjectives.length > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-700 dark:text-sky-300">
+                    {lesson.missionObjectives.length} Mission Goals
+                  </span>
+                )}
+                {lesson.alwaysUnlocked && !lesson.isWarmup && (
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+                    Always Open
+                  </span>
+                )}
+              </div>
             </button>
           ))}
         </div>
@@ -367,13 +628,30 @@ export function CoachScreen() {
         </span>
       </div>
 
+      {/* Live Mission Goals Bar */}
+      {activeLesson.missionObjectives.length > 0 && (
+        <div className="px-4 pt-2.5 shrink-0">
+          <MissionTrackerBar
+            key={activeLesson.id}
+            objectives={activeLesson.missionObjectives}
+            completedIds={completedObjectiveIds}
+            xrayScores={sessionXRayScores}
+          />
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
         {messages.map((msg) => (
           <CoachMessageBubble
             key={msg.id}
             message={msg}
             isPlaying={speakingMessageId === msg.id}
-            onPlayVoice={(id, text) => playCoachVoice(id, text)}
+            speakingMessageId={speakingMessageId}
+            selectedRate={selectedRate}
+            onSelectRate={handleSelectRate}
+            onPlayVoice={(id, text, rateOverride) =>
+              playCoachVoice(id, text, rateOverride)
+            }
             onSelectWord={setActiveWordTip}
             onSavePhrase={(phrase, noteBn) => {
               void addSavedPhrase(phrase, noteBn).catch(() => {})
@@ -415,6 +693,34 @@ export function CoachScreen() {
       )}
 
       <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col gap-2 shrink-0">
+        {/* Force-Repeat Muscle Memory Drill (0 Extra API Quota) */}
+        {pendingRepeat && (
+          <ForceRepeatCard
+            key={pendingRepeat.id}
+            targetSentence={pendingRepeat.sentence}
+            selectedRate={selectedRate}
+            onSelectRate={handleSelectRate}
+            isPlaying={speakingMessageId === FORCE_REPEAT_VOICE_ID}
+            onPlayTarget={(text, rate) =>
+              playCoachVoice(FORCE_REPEAT_VOICE_ID, text, rate)
+            }
+            onComplete={clearPendingRepeat}
+            onSkip={clearPendingRepeat}
+          />
+        )}
+
+        {/* Anti-Freeze Reply Chips Drawer */}
+        {!pendingRepeat && activeStuckChips.length > 0 && (
+          <StuckChipsDrawer
+            chips={activeStuckChips}
+            selectedRate={selectedRate}
+            speakingMessageId={speakingMessageId}
+            onPlayChip={(chipId, text, rate) => playCoachVoice(chipId, text, rate)}
+            onUseChip={(text) => setTextInput(text)}
+            disabled={isRecording || isSending}
+          />
+        )}
+
         {isRecording ? (
           <div className="flex gap-2">
             <button
@@ -458,7 +764,7 @@ export function CoachScreen() {
               }
             }}
             disabled={isRecording || isSending}
-            placeholder="Or type your reply..."
+            placeholder="Type in English or বাংলা..."
             className="min-h-11 flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 text-xs focus:outline-none focus:border-emerald-500"
           />
           <button

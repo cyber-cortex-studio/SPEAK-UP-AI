@@ -1,17 +1,19 @@
 import { useEffect, useState, type ComponentType } from 'react'
-import { CoachIcon, ProgressIcon, SettingsIcon } from './components/NavIcons'
+import { CoachIcon, HomeIcon, ProgressIcon, SettingsIcon } from './components/NavIcons'
 import { UpdateBanner } from './components/UpdateBanner'
 import { CoachScreen } from './screens/CoachScreen'
+import { HomeScreen } from './screens/HomeScreen'
 import { ProgressScreen } from './screens/ProgressScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 
-type Route = 'coach' | 'progress' | 'settings'
+type Route = 'home' | 'coach' | 'progress' | 'settings'
 
 const NAV_ITEMS: Array<{
   id: Route
   label: string
   Icon: ComponentType<{ className?: string }>
 }> = [
+  { id: 'home', label: 'Home', Icon: HomeIcon },
   { id: 'coach', label: 'Coach', Icon: CoachIcon },
   { id: 'progress', label: 'Progress', Icon: ProgressIcon },
   { id: 'settings', label: 'Settings', Icon: SettingsIcon },
@@ -19,10 +21,10 @@ const NAV_ITEMS: Array<{
 
 function parseRouteFromHash(): Route {
   const cleaned = window.location.hash.replace(/^#\/?/, '').toLowerCase()
-  if (cleaned === 'progress' || cleaned === 'settings') {
+  if (cleaned === 'coach' || cleaned === 'progress' || cleaned === 'settings') {
     return cleaned
   }
-  return 'coach'
+  return 'home'
 }
 
 export default function App() {
@@ -34,7 +36,7 @@ export default function App() {
 
   useEffect(() => {
     if (!window.location.hash) {
-      window.location.hash = '#/coach'
+      window.location.hash = '#/home'
     }
     const handleHashChange = () => setRoute(parseRouteFromHash())
     window.addEventListener('hashchange', handleHashChange)
@@ -114,6 +116,7 @@ export default function App() {
 
         {/* Scrollable Screen Content */}
         <main className="flex-1 overflow-y-auto">
+          {route === 'home' && <HomeScreen />}
           {route === 'coach' && <CoachScreen />}
           {route === 'progress' && <ProgressScreen />}
           {route === 'settings' && <SettingsScreen />}

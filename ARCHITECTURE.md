@@ -31,3 +31,11 @@
 ## 5. Local Persistence & Data-Driven Curriculum
 - **Curriculum (`src/content/curriculum.json`):** Zod-validated (`contentSchemas.ts`), 10 lessons across 4 modes (`Free Talk`, `Roleplay`, `Listen & Reply`, `Quick Fix`).
 - **Database (`src/db/speakupDb.ts` — Dexie.js IndexedDB):** Stores lightweight text-only records in 4 tables: `dailyStats`, `mistakeCards`, `savedPhrases`, and `skillEvidence` with non-blocking writes and two-tap reset.
+
+---
+
+### Implementation Sync Log — v11.1 (100% Completed & Verified)
+- **Phase 1 (AI Brain — Completed):** `src/schemas/validators.ts`, `src/ai/promptBuilder.ts` + unit tests. Single-Call Piggyback JSON, Smart Mistake Memory (top 2 unmastered), Bengali-to-English Safety Net, Ask-Anything direct Q&A rule, and Custom Topic support.
+- **Phase 2 (Real-Life Curriculum — Completed):** `src/schemas/contentSchemas.ts`, `src/content/curriculum.json` (14 real-life missions & 3 daily 60s warm-ups across all 6 stages), `src/content/curriculumLoader.ts` + `createCustomTalkLesson()` + unit tests.
+- **Phase 3 (Active Coach UI — Completed):** `CoachMessageBubble.tsx` (user-selectable `0.75x / 1.0x / 1.2x` speed — never fixed), `MissionTrackerBar.tsx`, `StuckChipsDrawer.tsx`, `ForceRepeatCard.tsx` + `src/ai/repeatMatcher.ts` (0-quota local speech match), and `CoachScreen.tsx` (Custom Talk box + live wiring).
+- **Phase 4 (Live Brain Connection — Completed):** `src/db/speakupDb.ts` (`audioXRay` persistence), `src/db/progressLogic.ts` + tests (real Day Streak, dynamic Stage 1–6 unlocking, 4-skill Audio X-Ray averaging), wired into `HomeScreen.tsx`, `LearningPathView.tsx`, and `ProgressScreen.tsx`.

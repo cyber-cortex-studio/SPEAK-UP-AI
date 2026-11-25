@@ -1,122 +1,624 @@
 [
   {
-    "id": "ft_daily_routine",
+    "id": "ft_best_friend",
     "stage": "pre_a1",
     "mode": "free_talk",
-    "title": "My Daily Routine",
-    "titleBn": "আমার প্রতিদিনের রুটিন",
-    "description": "Talk about your morning, college, or daily habits in simple sentences.",
-    "starterPrompt": "Hi! Tell me, what time did you wake up today and what did you do first?",
-    "starterPromptBn": "তুমি আজ ক'টায় ঘুম থেকে উঠেছ আর প্রথমে কী করলে?",
-    "coachRole": "Friendly English coach helping a Bengali beginner talk about their daily routine using simple present and past tense.",
-    "targetSkill": "speaking"
+    "title": "Best Friend Chat (Ask Anything)",
+    "titleBn": "বন্ধুর সাথে আড্ডা ও যা খুশি জিজ্ঞাসা",
+    "description": "Talk freely like a close friend about your day, movies, cricket, or ask in Bengali how to say anything in English.",
+    "starterPrompt": "Hey! Good to see you. Tell me anything on your mind today — or ask me in Bengali how to say something in English!",
+    "starterPromptBn": "হেই! কেমন আছো? আজ মনে যা আসছে বলো — অথবা বাংলায় জিজ্ঞাসা করো কোনো কথা ইংরেজিতে কীভাবে বলবে!",
+    "coachRole": "The learner's warm, supportive best friend who chats naturally about everyday life and happily explains how to say things in English when asked.",
+    "targetSkill": "speaking",
+    "alwaysUnlocked": true,
+    "isWarmup": false,
+    "estimatedMinutes": 5,
+    "missionObjectives": [],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "Hi! Today was a good day.",
+        "bangla": "হাই! আজকের দিনটা ভালো ছিল।"
+      },
+      {
+        "level": "natural",
+        "english": "Hey! I'm a bit tired today, how about you?",
+        "bangla": "হেই! আজ একটু ক্লান্ত লাগছে, তোমার খবর কী?"
+      },
+      {
+        "level": "smart",
+        "english": "Hey! I want to practice chatting casually with friends.",
+        "bangla": "হেই! আমি বন্ধুদের সাথে সহজভাবে আড্ডা দেওয়ার ইংরেজি প্র্যাকটিস করতে চাই।"
+      }
+    ]
   },
   {
-    "id": "ft_favorite_food",
+    "id": "wu_self_intro",
+    "stage": "pre_a1",
+    "mode": "free_talk",
+    "title": "60s Warm-up: Self Intro",
+    "titleBn": "১ মিনিটে নিজের পরিচয়",
+    "description": "Quick 60-second confidence booster to introduce yourself clearly anywhere.",
+    "starterPrompt": "Quick warm-up! Imagine we just met — tell me your name, where you're from, and one thing you like doing.",
+    "starterPromptBn": "ঝটপট ওয়ার্ম-আপ! ধরো আমাদের এইমাত্র দেখা হলো — তোমার নাম, কোথা থেকে এসেছ, আর কী করতে ভালোবাসো বলো।",
+    "coachRole": "An energetic, friendly conversation partner doing a fast 60-second self-introduction warm-up.",
+    "targetSkill": "speaking",
+    "alwaysUnlocked": true,
+    "isWarmup": true,
+    "estimatedMinutes": 1,
+    "missionObjectives": [],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "Hi, my name is (Rahul/Riya). I am from West Bengal.",
+        "bangla": "হাই, আমার নাম (রাহুল/রিয়া)। আমি পশ্চিমবঙ্গ থেকে এসেছি।"
+      },
+      {
+        "level": "natural",
+        "english": "Hi! I'm a college student and I love learning new tech.",
+        "bangla": "হাই! আমি একজন কলেজ স্টুডেন্ট এবং নতুন টেকনোলজি শিখতে ভালোবাসি।"
+      },
+      {
+        "level": "smart",
+        "english": "Nice to meet you! I'm studying computer science and building small projects.",
+        "bangla": "পরিচিত হয়ে ভালো লাগল! আমি কম্পিউটার সায়েন্স পড়ছি আর ছোট প্রজেক্ট বানাচ্ছি।"
+      }
+    ]
+  },
+  {
+    "id": "wu_tea_stall",
+    "stage": "pre_a1",
+    "mode": "listen_reply",
+    "title": "60s Warm-up: Tea & Snacks Order",
+    "titleBn": "১ মিনিটে চা-নাশতা অর্ডার",
+    "description": "Practice ordering tea, coffee, or snacks politely in under a minute.",
+    "starterPrompt": "Welcome! What would you like to have today — tea, coffee, or some snacks?",
+    "starterPromptBn": "আসুন! আজ কী নেবেন — চা, কফি নাকি কিছু নাশতা?",
+    "coachRole": "A cheerful local cafe counter attendant taking a quick 60-second order.",
+    "targetSkill": "listening",
+    "alwaysUnlocked": true,
+    "isWarmup": true,
+    "estimatedMinutes": 1,
+    "missionObjectives": [],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "One cup of tea, please.",
+        "bangla": "এক কাপ চা দিন, প্লিজ।"
+      },
+      {
+        "level": "natural",
+        "english": "Can I get a masala tea and two biscuits, please?",
+        "bangla": "আমাকে একটা মশলা চা আর দুটো বিস্কুট দেবেন?"
+      },
+      {
+        "level": "smart",
+        "english": "I'd like a hot coffee with less sugar, please.",
+        "bangla": "আমি কম চিনি দিয়ে একটা গরম কফি নেব, প্লিজ।"
+      }
+    ]
+  },
+  {
+    "id": "wu_how_was_day",
     "stage": "a1",
     "mode": "free_talk",
-    "title": "Favorite Food & Meals",
-    "titleBn": "প্রিয় খাবার ও রান্না",
-    "description": "Describe what you like to eat and why you enjoy it.",
-    "starterPrompt": "Let us talk about food! What is your favorite meal at home, and why do you like it?",
-    "starterPromptBn": "বাড়ির কোন খাবারটা তোমার সবচেয়ে প্রিয় এবং কেন?",
-    "coachRole": "Warm English coach encouraging natural food vocabulary and simple opinion sentences.",
-    "targetSkill": "vocabulary"
+    "title": "60s Warm-up: How Was Your Day?",
+    "titleBn": "১ মিনিটে আজকের দিনটা কেমন গেল",
+    "description": "Share 2 or 3 quick lines about your day to build daily English thinking.",
+    "starterPrompt": "Quick check-in! How was your day today, and what was the best part of it?",
+    "starterPromptBn": "ঝটপট বলো তো, আজকের দিনটা কেমন কাটল আর সবচেয়ে ভালো মুহূর্ত কোনটা ছিল?",
+    "coachRole": "A supportive daily speaking partner doing a fast 60-second day recap.",
+    "targetSkill": "sentence",
+    "alwaysUnlocked": true,
+    "isWarmup": true,
+    "estimatedMinutes": 1,
+    "missionObjectives": [],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "My day was good. I studied in the morning.",
+        "bangla": "আমার দিনটা ভালো ছিল। সকালে পড়াশোনা করেছি।"
+      },
+      {
+        "level": "natural",
+        "english": "It was a busy day, but I enjoyed talking with my friends.",
+        "bangla": "আজ বেশ ব্যস্ত দিন ছিল, তবে বন্ধুদের সাথে কথা বলে ভালো লেগেছে।"
+      },
+      {
+        "level": "smart",
+        "english": "Pretty productive! I finished my work early and relaxed in the evening.",
+        "bangla": "বেশ ভালোই কেটেছে! কাজ তাড়াতাড়ি শেষ করে সন্ধ্যায় আরাম করেছি।"
+      }
+    ]
   },
   {
-    "id": "ft_weekend_plan",
+    "id": "rp_new_friend",
+    "stage": "pre_a1",
+    "mode": "roleplay",
+    "title": "Making a New Friend",
+    "titleBn": "নতুন বন্ধুর সাথে আলাপ",
+    "description": "Break the ice with a friendly new classmate or neighbor in simple English.",
+    "starterPrompt": "Hi there! I think I haven't met you before. I'm Rohan. What's your name?",
+    "starterPromptBn": "হাই! মনে হয় আগে আমাদের পরিচয় হয়নি। আমি রোহন। তোমার নাম কী?",
+    "coachRole": "Rohan, a friendly new classmate who is happy to make a new friend and speaks in simple, clear English.",
+    "targetSkill": "speaking",
+    "alwaysUnlocked": true,
+    "isWarmup": false,
+    "estimatedMinutes": 4,
+    "missionObjectives": [
+      {
+        "id": "obj_greet",
+        "label": "Greet Rohan and share your name",
+        "labelBn": "রোহনকে হ্যালো বলো এবং নিজের নাম জানাও"
+      },
+      {
+        "id": "obj_hobby",
+        "label": "Mention one hobby or interest you enjoy",
+        "labelBn": "তোমার একটা শখ বা পছন্দের কাজ বলো"
+      },
+      {
+        "id": "obj_ask_back",
+        "label": "Ask Rohan one friendly question back",
+        "labelBn": "রোহনকে পাল্টা একটা সহজ প্রশ্ন করো"
+      }
+    ],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "Hi Rohan, my name is (Rahul/Riya). Nice to meet you.",
+        "bangla": "হাই রোহন, আমার নাম (রাহুল/রিয়া)। পরিচিত হয়ে ভালো লাগল।"
+      },
+      {
+        "level": "natural",
+        "english": "Hey Rohan! Good to meet you. Are you new here too?",
+        "bangla": "হেই রোহন! দেখা হয়ে ভালো লাগল। তুমিও কি এখানে নতুন?"
+      },
+      {
+        "level": "smart",
+        "english": "Hi Rohan, nice to meet you! Which department are you in?",
+        "bangla": "হাই রোহন, পরিচিত হয়ে ভালো লাগল! তুমি কোন ডিপার্টমেন্টে পড়ো?"
+      }
+    ]
+  },
+  {
+    "id": "rp_weekend_plan",
+    "stage": "a1",
+    "mode": "roleplay",
+    "title": "Weekend Plan with a Friend",
+    "titleBn": "বন্ধুর সাথে ঘুরতে যাওয়ার প্ল্যান",
+    "description": "Make a fun Sunday hangout plan with your friend — pick a place, time, and food.",
+    "starterPrompt": "Hey buddy! Sunday is coming up. Are you free to hang out somewhere?",
+    "starterPromptBn": "হেই বন্ধু! রবিবার তো চলে এল। কোথাও ঘুরতে যাওয়ার সময় আছে নাকি?",
+    "coachRole": "A cheerful close friend making casual weekend hangout plans.",
+    "targetSkill": "speaking",
+    "alwaysUnlocked": false,
+    "isWarmup": false,
+    "estimatedMinutes": 5,
+    "missionObjectives": [
+      {
+        "id": "obj_suggest_place",
+        "label": "Suggest a place to visit or a movie to watch",
+        "labelBn": "ঘোরার জায়গা বা সিনেমার একটা আইডিয়া দাও"
+      },
+      {
+        "id": "obj_agree_time",
+        "label": "Fix a meeting time for Sunday",
+        "labelBn": "রবিবার কটায় দেখা করবে ঠিক করো"
+      },
+      {
+        "id": "obj_food_plan",
+        "label": "Suggest what to eat together",
+        "labelBn": "একসাথে কী খাওয়া যাবে সেটা বলো"
+      }
+    ],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "Yes, I am free on Sunday. Let's meet.",
+        "bangla": "হ্যাঁ, রবিবার আমি ফ্রি আছি। চলো দেখা করি।"
+      },
+      {
+        "level": "natural",
+        "english": "Sure! How about watching a movie in the afternoon?",
+        "bangla": "নিশ্চয়ই! বিকেলে একটা সিনেমা দেখলে কেমন হয়?"
+      },
+      {
+        "level": "smart",
+        "english": "I'd love to! Let's grab some biryani and hang out around 5 PM.",
+        "bangla": "দারুণ হবে! চলো বিকেল ৫টা নাগাদ বিরিয়ানি খাই আর আড্ডা দিই।"
+      }
+    ]
+  },
+  {
+    "id": "rp_broken_headphones",
+    "stage": "a1",
+    "mode": "roleplay",
+    "title": "Return Broken Headphones",
+    "titleBn": "দোকানে ভাঙা হেডফোন রিটার্ন",
+    "description": "Your new headphones stopped working in 2 days. Convince a strict shopkeeper to replace or refund them.",
+    "starterPrompt": "Yes? I'm a bit busy right now. What do you need?",
+    "starterPromptBn": "হ্যাঁ বলুন? আমি একটু ব্যস্ত আছি। কী দরকার?",
+    "coachRole": "A slightly strict but fair electronics shopkeeper who asks for proof before agreeing to a replacement or refund.",
+    "targetSkill": "repair",
+    "alwaysUnlocked": false,
+    "isWarmup": false,
+    "estimatedMinutes": 5,
+    "missionObjectives": [
+      {
+        "id": "obj_explain_issue",
+        "label": "Clearly explain what is wrong with the headphones",
+        "labelBn": "হেডফোনে ঠিক কী সমস্যা হয়েছে স্পষ্ট করে বলো"
+      },
+      {
+        "id": "obj_mention_bill",
+        "label": "Mention when you bought it and that you have the bill",
+        "labelBn": "কবে কিনেছ আর বিল আছে সেটা জানাও"
+      },
+      {
+        "id": "obj_ask_refund",
+        "label": "Politely ask for a replacement or refund",
+        "labelBn": "ভদ্রভাবে পাল্টে দিতে বা টাকা ফেরত চাইতে বলো"
+      }
+    ],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "Sir, these headphones are not working.",
+        "bangla": "স্যার, এই হেডফোনটা কাজ করছে না।"
+      },
+      {
+        "level": "natural",
+        "english": "I bought these headphones two days ago, and the left side has no sound.",
+        "bangla": "দুদিন আগে এই হেডফোনটা কিনেছিলাম, বাঁ দিকে কোনো সাউন্ড আসছে না।"
+      },
+      {
+        "level": "smart",
+        "english": "Excuse me, I have the receipt here — could you please replace this defective pair?",
+        "bangla": "শুনুন, আমার কাছে রশিদ আছে — দয়া করে এই নষ্ট হেডফোনটা পাল্টে দেবেন?"
+      }
+    ]
+  },
+  {
+    "id": "qf_common_mistakes",
+    "stage": "a1",
+    "mode": "quick_fix",
+    "title": "Fix Common Daily Mistakes",
+    "titleBn": "বাঙালিদের কমন ইংরেজি ভুল ঠিক করা",
+    "description": "Practice fixing tricky daily sentences like past tense, prepositions, and polite requests.",
+    "starterPrompt": "Let's fix everyday English habits together! First question: What did you do yesterday evening?",
+    "starterPromptBn": "চলো রোজকার ছোট ছোট ইংরেজি ভুল ঠিক করি! প্রথম প্রশ্ন: গতকাল সন্ধ্যায় তুমি কী করেছিলে?",
+    "coachRole": "A patient grammar-in-action partner who gently helps Bengali speakers nail past tense, present habits, and polite requests through real conversation.",
+    "targetSkill": "grammar",
+    "alwaysUnlocked": false,
+    "isWarmup": false,
+    "estimatedMinutes": 5,
+    "missionObjectives": [
+      {
+        "id": "obj_past_tense",
+        "label": "Share one thing you did yesterday using correct past tense",
+        "labelBn": "সঠিক Past Tense-এ গতকালের একটা কাজ বলো"
+      },
+      {
+        "id": "obj_daily_habit",
+        "label": "Describe one daily habit accurately",
+        "labelBn": "তোমার রোজকার একটা অভ্যাস সঠিকভাবে বলো"
+      },
+      {
+        "id": "obj_polite_ask",
+        "label": "Make one polite request using 'Could you' or 'Can I'",
+        "labelBn": "'Could you' বা 'Can I' দিয়ে একটা ভদ্র অনুরোধ করো"
+      }
+    ],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "Yesterday evening, I went to the market.",
+        "bangla": "গতকাল সন্ধ্যায় আমি বাজারে গিয়েছিলাম।"
+      },
+      {
+        "level": "natural",
+        "english": "I watched a movie and had dinner with my family.",
+        "bangla": "আমি একটা সিনেমা দেখেছিলাম আর পরিবারের সাথে রাতের খাবার খেয়েছিলাম।"
+      },
+      {
+        "level": "smart",
+        "english": "I spent the evening revising my notes and chatting with a friend.",
+        "bangla": "সন্ধ্যায় আমি নোটস রিভিশন দিয়েছি আর এক বন্ধুর সাথে গল্প করেছি।"
+      }
+    ]
+  },
+  {
+    "id": "rp_professor_talk",
     "stage": "a2",
-    "mode": "free_talk",
-    "title": "Weekend & Future Plans",
-    "titleBn": "ছুটির দিনের প্ল্যান",
-    "description": "Practice talking about upcoming plans using going to and will.",
-    "starterPrompt": "The weekend is coming! What are you planning to do this Sunday?",
-    "starterPromptBn": "আগামী রবিবারে তোমার কী করার প্ল্যান আছে?",
-    "coachRole": "Supportive coach helping the learner use future tense naturally without over-correcting.",
-    "targetSkill": "sentence"
-  },
-  {
-    "id": "rp_tea_stall",
-    "stage": "pre_a1",
     "mode": "roleplay",
-    "title": "At a Cafe / Tea Stall",
-    "titleBn": "ক্যাফে বা চায়ের দোকানে অর্ডার",
-    "description": "Order tea, snacks, and ask for the bill politely.",
-    "starterPrompt": "Welcome! Would you like tea, coffee, or some snacks today?",
-    "starterPromptBn": "স্বাগতম! আজ কি চা, কফি নাকি কোনো স্ন্যাকস নেবেন?",
-    "coachRole": "Polite cafe waiter in a roleplay. Keep replies short (1-2 sentences) so the learner speaks more.",
-    "targetSkill": "speaking"
+    "title": "Talking to a Professor",
+    "titleBn": "প্রফেসরের সাথে কথা বলা",
+    "description": "Ask your college professor politely about a project doubt, assignment deadline, or leave.",
+    "starterPrompt": "Good morning! Come in. Did you want to discuss something about your assignment or project?",
+    "starterPromptBn": "গুড মর্নিং! ভেতরে এসো। অ্যাসাইনমেন্ট বা প্রজেক্ট নিয়ে কিছু বলার আছে?",
+    "coachRole": "A helpful, respectful college professor speaking politely with a student during office hours.",
+    "targetSkill": "vocabulary",
+    "alwaysUnlocked": false,
+    "isWarmup": false,
+    "estimatedMinutes": 5,
+    "missionObjectives": [
+      {
+        "id": "obj_polite_open",
+        "label": "Greet the professor respectfully and state why you came",
+        "labelBn": "প্রফেসরকে সম্মান জানিয়ে আসার কারণ বলো"
+      },
+      {
+        "id": "obj_explain_doubt",
+        "label": "Explain your specific doubt or request clearly",
+        "labelBn": "তোমার নির্দিষ্ট প্রশ্ন বা অনুরোধটা পরিষ্কার করে বলো"
+      },
+      {
+        "id": "obj_confirm_next",
+        "label": "Confirm the next step and thank the professor",
+        "labelBn": "পরের ধাপটা নিশ্চিত করে ধন্যবাদ জানাও"
+      }
+    ],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "Good morning sir. I have a doubt in my project.",
+        "bangla": "গুড মর্নিং স্যার। আমার প্রজেক্টে একটা ডাউট আছে।"
+      },
+      {
+        "level": "natural",
+        "english": "Good morning sir, could you please help me understand this topic?",
+        "bangla": "গুড মর্নিং স্যার, এই টপিকটা একটু বুঝিয়ে দেবেন প্লিজ?"
+      },
+      {
+        "level": "smart",
+        "english": "Good morning sir, I wanted to check if I'm on the right track with my project.",
+        "bangla": "গুড মর্নিং স্যার, জানতে এসেছিলাম আমার প্রজেক্টটা ঠিক পথে এগোচ্ছে কি না।"
+      }
+    ]
   },
   {
-    "id": "rp_asking_directions",
-    "stage": "a1",
-    "mode": "roleplay",
-    "title": "Asking for Directions",
-    "titleBn": "রাস্তা জিজ্ঞাসা করা",
-    "description": "Ask a stranger how to reach the nearest station or market.",
-    "starterPrompt": "Hello! You look a bit lost. Where are you trying to go?",
-    "starterPromptBn": "হ্যালো! আপনি কোথায় যেতে চাইছেন?",
-    "coachRole": "Helpful local resident in a roleplay giving simple directions and asking follow-up questions.",
-    "targetSkill": "repair"
+    "id": "lr_doctor_visit",
+    "stage": "a2",
+    "mode": "listen_reply",
+    "title": "Doctor / Pharmacy Visit",
+    "titleBn": "ডাক্তার বা ওষুধের দোকানে",
+    "description": "Listen carefully to the doctor's questions and clearly explain your symptoms and medicine queries.",
+    "starterPrompt": "Hello, please have a seat. Tell me, what seems to be troubling you today?",
+    "starterPromptBn": "নমস্কার, বসুন। বলুন, আজ শরীরের কী সমস্যা হচ্ছে?",
+    "coachRole": "A calm, caring doctor asking clear follow-up questions about symptoms, duration, and medicine instructions.",
+    "targetSkill": "listening",
+    "alwaysUnlocked": false,
+    "isWarmup": false,
+    "estimatedMinutes": 5,
+    "missionObjectives": [
+      {
+        "id": "obj_symptom",
+        "label": "Describe your main symptom clearly",
+        "labelBn": "শরীরের মূল সমস্যাটা পরিষ্কার করে বলো"
+      },
+      {
+        "id": "obj_duration",
+        "label": "Tell the doctor how long you have felt this way",
+        "labelBn": "কত দিন ধরে সমস্যাটা হচ্ছে জানাও"
+      },
+      {
+        "id": "obj_dosage",
+        "label": "Ask how and when to take the medicine",
+        "labelBn": "ওষুধ কখন আর কীভাবে খেতে হবে জিজ্ঞাসা করো"
+      }
+    ],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "Doctor, I have a fever and headache.",
+        "bangla": "ডাক্তারবাবু, আমার জ্বর আর মাথাব্যথা হয়েছে।"
+      },
+      {
+        "level": "natural",
+        "english": "I've had a sore throat and mild fever since yesterday.",
+        "bangla": "গতকাল থেকে আমার গলাব্যথা আর হালকা জ্বর আছে।"
+      },
+      {
+        "level": "smart",
+        "english": "I've been feeling weak with a cold for two days, and it gets worse at night.",
+        "bangla": "দুদিন ধরে সর্দি আর দুর্বল লাগছে, রাতে সমস্যাটা আরও বাড়ছে।"
+      }
+    ]
   },
   {
-    "id": "rp_job_interview",
+    "id": "rp_job_interview_1",
     "stage": "b1",
     "mode": "roleplay",
-    "title": "Self-Introduction (Interview)",
-    "titleBn": "ইন্টারভিউতে নিজের পরিচয়",
-    "description": "Introduce yourself, your skills, and your goals clearly.",
-    "starterPrompt": "Good morning! Thank you for coming. Could you please tell me a little about yourself?",
-    "starterPromptBn": "শুভ সকাল! দয়া করে নিজের সম্পর্কে একটু বলুন।",
-    "coachRole": "Calm, encouraging interviewer helping the learner build a clear and confident self-introduction.",
-    "targetSkill": "pronunciation"
+    "title": "Job Interview — Round 1",
+    "titleBn": "কোম্পানি ইন্টারভিউ — ১ম রাউন্ড",
+    "description": "Ace the classic first interview round: introduce yourself, highlight your skills, and explain why you fit.",
+    "starterPrompt": "Welcome! Thanks for joining today. Let's start simply — tell me a little about yourself.",
+    "starterPromptBn": "স্বাগতম! আজ আসার জন্য ধন্যবাদ। সহজভাবে শুরু করি — নিজের সম্পর্কে একটু বলুন।",
+    "coachRole": "A warm but professional HR interviewer conducting a first-round fresher/junior job interview.",
+    "targetSkill": "sentence",
+    "alwaysUnlocked": false,
+    "isWarmup": false,
+    "estimatedMinutes": 6,
+    "missionObjectives": [
+      {
+        "id": "obj_background",
+        "label": "Give a clear 2-3 sentence self-introduction",
+        "labelBn": "২-৩ লাইনে নিজের সুন্দর পরিচয় দাও"
+      },
+      {
+        "id": "obj_strength",
+        "label": "Share one practical skill or project you built",
+        "labelBn": "তোমার একটা স্কিল বা বানানো প্রজেক্টের কথা বলো"
+      },
+      {
+        "id": "obj_why_hire",
+        "label": "Explain why you want this role",
+        "labelBn": "কেন এই কাজটা করতে চাও সেটা বোঝাও"
+      }
+    ],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "Hello, I am a Computer Science student. I like building apps.",
+        "bangla": "হ্যালো, আমি কম্পিউটার সায়েন্সের ছাত্র। আমি অ্যাপ বানাতে ভালোবাসি।"
+      },
+      {
+        "level": "natural",
+        "english": "Thank you! I'm pursuing my B.Sc. in Computer Science and I enjoy solving real problems with tech.",
+        "bangla": "ধন্যবাদ! আমি কম্পিউটার সায়েন্সে বি.এসসি করছি এবং টেকনোলজি দিয়ে বাস্তব সমস্যা সমাধান করতে ভালোবাসি।"
+      },
+      {
+        "level": "smart",
+        "english": "Thanks for having me. I'm a CS undergrad focused on web apps and practical AI tools, and I learn fast by building.",
+        "bangla": "আমাকে সুযোগ দেওয়ার জন্য ধন্যবাদ। আমি সিএস পড়ছি, ওয়েব অ্যাপ আর এআই টুল নিয়ে কাজ করি এবং হাতে-কলমে দ্রুত শিখি।"
+      }
+    ]
   },
   {
-    "id": "lr_phone_call",
-    "stage": "a1",
+    "id": "lr_support_call",
+    "stage": "b1",
     "mode": "listen_reply",
-    "title": "Quick Phone Call",
-    "titleBn": "ছোট ফোন কল শুনে উত্তর দেওয়া",
-    "description": "Listen carefully to a short message and reply naturally.",
-    "starterPrompt": "Hey, I am at the bus stand right now. Should I wait for you here, or should I start walking?",
-    "starterPromptBn": "আমি এখন বাস স্ট্যান্ডে আছি। আমি কি এখানে অপেক্ষা করব নাকি হাঁটা শুরু করব?",
-    "coachRole": "Friend on a phone call. Speak clearly in short sentences and check if the learner understood.",
-    "targetSkill": "listening"
+    "title": "Delivery / Customer Care Call",
+    "titleBn": "কাস্টমার কেয়ারে ফোন",
+    "description": "Handle an online shopping or service issue calmly over a phone call in English.",
+    "starterPrompt": "Thank you for calling Customer Care. My name is Priya. How may I assist you with your order today?",
+    "starterPromptBn": "কাস্টমার কেয়ারে ফোন করার জন্য ধন্যবাদ। আমি প্রিয়া বলছি। আপনার অর্ডার নিয়ে কীভাবে সাহায্য করতে পারি?",
+    "coachRole": "Priya, a polite customer support executive verifying order details and resolving a delivery delay or wrong item complaint.",
+    "targetSkill": "repair",
+    "alwaysUnlocked": false,
+    "isWarmup": false,
+    "estimatedMinutes": 5,
+    "missionObjectives": [
+      {
+        "id": "obj_problem",
+        "label": "State the order problem clearly",
+        "labelBn": "অর্ডারে কী সমস্যা হয়েছে পরিষ্কার বলো"
+      },
+      {
+        "id": "obj_details",
+        "label": "Answer Priya's verification question smoothly",
+        "labelBn": "প্রিয়ার ভেরিফিকেশন প্রশ্নের ঠিকঠাক উত্তর দাও"
+      },
+      {
+        "id": "obj_resolution",
+        "label": "Confirm the refund or redelivery timeline",
+        "labelBn": "রিফান্ড বা নতুন ডেলিভারি কবে হবে জেনে নাও"
+      }
+    ],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "Hi, my order has not arrived yet.",
+        "bangla": "হাই, আমার অর্ডারটা এখনো আসেনি।"
+      },
+      {
+        "level": "natural",
+        "english": "Hello Priya, I received the wrong item in my package today.",
+        "bangla": "হ্যালো প্রিয়া, আজ আমার প্যাকেজে ভুল জিনিস এসেছে।"
+      },
+      {
+        "level": "smart",
+        "english": "Hi Priya, my parcel was marked delivered, but I haven't received it yet. Could you check?",
+        "bangla": "হাই প্রিয়া, আমার পার্সেল ডেলিভারড দেখাচ্ছে কিন্তু আমি এখনো পাইনি। একটু চেক করবেন?"
+      }
+    ]
   },
   {
-    "id": "lr_meeting_time",
-    "stage": "a2",
-    "mode": "listen_reply",
-    "title": "Fixing a Meeting Time",
-    "titleBn": "দেখা করার সময় ঠিক করা",
-    "description": "Listen to a schedule change and suggest a new time.",
-    "starterPrompt": "Sorry, I cannot meet at 4 PM today because of a class. Can we meet at 6 PM instead?",
-    "starterPromptBn": "দুঃখিত, ক্লাস থাকায় আজ ৪টায় দেখা করতে পারব না। আমরা কি ৬টায় দেখা করতে পারি?",
-    "coachRole": "Classmate rescheduling a meeting. Help the learner confirm or negotiate time politely.",
-    "targetSkill": "listening"
-  },
-  {
-    "id": "qf_past_tense",
-    "stage": "a1",
+    "id": "qf_project_viva",
+    "stage": "b1_plus",
     "mode": "quick_fix",
-    "title": "3-Second Reflex: Yesterday",
-    "titleBn": "দ্রুত অনুশীলন: গতকালের কথা",
-    "description": "Answer quick questions about yesterday using correct past tense.",
-    "starterPrompt": "Quick question! Where did you go yesterday evening?",
-    "starterPromptBn": "চটপট উত্তর দাও: গতকাল সন্ধ্যায় তুমি কোথায় গিয়েছিলে?",
-    "coachRole": "Energetic coach running a fast past-tense reflex drill. Gently fix verb forms in 1 short line.",
-    "targetSkill": "grammar"
+    "title": "Project Viva & Pitching Your Idea",
+    "titleBn": "প্রজেক্ট ভাইভা ও নিজের আইডিয়া বোঝানো",
+    "description": "Explain your college project or startup idea clearly and handle follow-up questions with confidence.",
+    "starterPrompt": "I looked at your project title — it sounds interesting! In simple words, what problem does your project solve?",
+    "starterPromptBn": "তোমার প্রজেক্টের নামটা বেশ ইন্টারেস্টিং! সহজ ভাষায় বলো তো, এটা ঠিক কোন সমস্যার সমাধান করে?",
+    "coachRole": "An encouraging external viva examiner or mentor asking clear follow-up questions about how the learner's project works.",
+    "targetSkill": "pronunciation",
+    "alwaysUnlocked": false,
+    "isWarmup": false,
+    "estimatedMinutes": 6,
+    "missionObjectives": [
+      {
+        "id": "obj_explain_problem",
+        "label": "Explain the core problem your idea solves",
+        "labelBn": "তোমার আইডিয়াটা কোন সমস্যা মেটায় বোঝাও"
+      },
+      {
+        "id": "obj_how_it_works",
+        "label": "Describe one key feature in simple steps",
+        "labelBn": "একটা মূল ফিচার কীভাবে কাজ করে সহজ ভাষায় বলো"
+      },
+      {
+        "id": "obj_future_plan",
+        "label": "Share one future improvement you plan to add",
+        "labelBn": "ভবিষ্যতে কী নতুন উন্নতি করবে সেটা বলো"
+      }
+    ],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "My project helps students practice speaking English every day.",
+        "bangla": "আমার প্রজেক্ট ছাত্রদের প্রতিদিন ইংরেজি বলার প্র্যাকটিস করতে সাহায্য করে।"
+      },
+      {
+        "level": "natural",
+        "english": "Many beginners understand English but freeze when speaking — my app fixes that.",
+        "bangla": "অনেক বিগিনার ইংরেজি বোঝে কিন্তু বলার সময় আটকে যায় — আমার অ্যাপ সেটাই ঠিক করে।"
+      },
+      {
+        "level": "smart",
+        "english": "It bridges the gap between knowing grammar and speaking fluently in real-life situations.",
+        "bangla": "এটা গ্রামার জানা আর বাস্তব জীবনে ফ্লুয়েন্টলি কথা বলার মাঝের দূরত্বটা ঘুচিয়ে দেয়।"
+      }
+    ]
   },
   {
-    "id": "qf_polite_requests",
-    "stage": "a2",
-    "mode": "quick_fix",
-    "title": "3-Second Reflex: Polite Requests",
-    "titleBn": "দ্রুত অনুশীলন: ভদ্রভাবে অনুরোধ",
-    "description": "Practice using Could you, Would you mind, and Please.",
-    "starterPrompt": "Imagine you need a pen from a stranger. How would you ask politely?",
-    "starterPromptBn": "ধরো কোনো অচেনা মানুষের কাছ থেকে একটা কলম চাইবে—ভদ্রভাবে কীভাবে বলবে?",
-    "coachRole": "Coach running a polite-request reflex drill. Give 1 quick upgrade if the sentence sounds too direct.",
-    "targetSkill": "sentence"
+    "id": "rp_tough_interview",
+    "stage": "b1_bridge",
+    "mode": "roleplay",
+    "title": "Tough Interview: Pressure & Weakness",
+    "titleBn": "কঠিন ইন্টারভিউ ও চাপ সামলানো",
+    "description": "Handle tricky hiring questions like your biggest weakness, gaps, or working under pressure without panicking.",
+    "starterPrompt": "Your profile looks promising, but let's be honest — what is one real weakness you are still working on?",
+    "starterPromptBn": "তোমার প্রোফাইল বেশ ভালো, তবে সত্যি করে বলো — তোমার একটা আসল দুর্বলতা কী যেটা এখনো ঠিক করছ?",
+    "coachRole": "A sharp, fair hiring manager testing composure, honesty, and structured spoken English under mild pressure.",
+    "targetSkill": "speaking",
+    "alwaysUnlocked": false,
+    "isWarmup": false,
+    "estimatedMinutes": 6,
+    "missionObjectives": [
+      {
+        "id": "obj_weakness",
+        "label": "Share an honest weakness plus how you are improving it",
+        "labelBn": "একটা সত্যিকারের দুর্বলতা বলো আর কীভাবে তা শুধরাচ্ছ জানাও"
+      },
+      {
+        "id": "obj_pressure",
+        "label": "Explain how you stay calm under a tight deadline",
+        "labelBn": "কম সময়ের চাপে কীভাবে মাথা ঠান্ডা রাখো বলো"
+      },
+      {
+        "id": "obj_ask_interviewer",
+        "label": "Ask one thoughtful question back to the interviewer",
+        "labelBn": "ইন্টারভিউয়ারকে পাল্টা একটা স্মার্ট প্রশ্ন করো"
+      }
+    ],
+    "initialStuckChips": [
+      {
+        "level": "easy",
+        "english": "Sometimes I get nervous speaking in English, so I practice every day.",
+        "bangla": "মাঝে মাঝে ইংরেজিতে বলতে নার্ভাস লাগে, তাই আমি প্রতিদিন প্র্যাকটিস করি।"
+      },
+      {
+        "level": "natural",
+        "english": "I used to spend too much time perfecting small details, so now I set clear time limits.",
+        "bangla": "আগে ছোটখাটো বিষয়ে বেশি সময় দিতাম, তাই এখন স্পষ্ট সময়সীমা বেঁধে কাজ করি।"
+      },
+      {
+        "level": "smart",
+        "english": "Public speaking used to be my weak point, so I started practicing daily mock talks and my confidence has grown a lot.",
+        "bangla": "সবার সামনে কথা বলা আগে আমার দুর্বলতা ছিল, তাই রোজ মক প্র্যাকটিস শুরু করেছি আর এখন কনফিডেন্স অনেক বেড়েছে।"
+      }
+    ]
   }
 ]

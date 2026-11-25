@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { TargetSkill } from '../schemas/contentSchemas'
+import type { AudioXRay } from '../schemas/validators'
 
 export interface DailyStat {
   date: string // YYYY-MM-DD
@@ -31,6 +32,7 @@ export interface SkillEvidence {
   skill: TargetSkill
   outcome: 'demonstrated' | 'developing' | 'needs_support'
   confidence: 'high' | 'medium' | 'low'
+  audioXRay?: AudioXRay
 }
 
 class SpeakUpDatabase extends Dexie {
@@ -52,11 +54,10 @@ class SpeakUpDatabase extends Dexie {
 
 export const db = new SpeakUpDatabase()
 
-export function getLocalDateKey(): string {
-  const now = new Date()
-  const y = now.getFullYear()
-  const m = String(now.getMonth() + 1).padStart(2, '0')
-  const d = String(now.getDate()).padStart(2, '0')
+export function getLocalDateKey(date: Date = new Date()): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
   return `${y}-${m}-${d}`
 }
 
@@ -66,6 +67,7 @@ export interface RecordTurnInput {
   skill: TargetSkill
   outcome: 'demonstrated' | 'developing' | 'needs_support'
   confidence: 'high' | 'medium' | 'low'
+  audioXRay?: AudioXRay
   correction?: {
     learnerSaid: string
     betterWay: string
@@ -98,6 +100,7 @@ export async function recordCompletedTurn(input: RecordTurnInput): Promise<void>
       skill: input.skill,
       outcome: input.outcome,
       confidence: input.confidence,
+      audioXRay: input.audioXRay,
     })
 
     if (input.correction && input.correction.betterWay.trim().length > 0) {

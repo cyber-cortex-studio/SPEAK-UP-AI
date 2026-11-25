@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react'
 import {
+  computeAverageXRay,
+  computeDayStreak,
+  type AudioXRaySummary,
+} from '../db/progressLogic'
+import {
   clearAllLearningData,
   db,
   deleteMistakeCard,
@@ -14,16 +19,20 @@ type ProgressTab = 'mistakes' | 'phrases'
 
 async function fetchProgressData() {
   const todayKey = getLocalDateKey()
-  const [todayStat, allDaysCount, recentMistakes, recentPhrases] = await Promise.all([
-    db.dailyStats.get(todayKey),
-    db.dailyStats.count(),
-    db.mistakeCards.orderBy("createdAt").reverse().limit(50).toArray(),
-    db.savedPhrases.orderBy("createdAt").reverse().limit(50).toArray(),
+  const [allStats, allEvidence, recentMistakes, recentPhrases] = await Promise.all([
+    db.dailyStats.toArray(),
+    db.skillEvidence.toArray(),
+    db.mistakeCards.orderBy('createdAt').reverse().limit(50).toArray(),
+    db.savedPhrases.orderBy('createdAt').reverse().limit(50).toArray(),
   ])
+
+  const todayStat = allStats.find((s) => s.date === todayKey)
+
   return {
     todaySeconds: todayStat?.speakingSeconds ?? 0,
     todayTurns: todayStat?.turnsCount ?? 0,
-    totalDays: allDaysCount,
+    dayStreak: computeDayStreak(allStats),
+    xraySummary: computeAverageXRay(allEvidence),
     mistakes: recentMistakes,
     phrases: recentPhrases,
   }
@@ -42,7 +51,8 @@ export function ProgressScreen() {
   const [activeTab, setActiveTab] = useState<ProgressTab>('mistakes')
   const [todaySeconds, setTodaySeconds] = useState(0)
   const [todayTurns, setTodayTurns] = useState(0)
-  const [totalDays, setTotalDays] = useState(0)
+  const [dayStreak, setDayStreak] = useState(0)
+  const [xraySummary, setXraySummary] = useState<AudioXRaySummary | null>(null)
   const [mistakes, setMistakes] = useState<MistakeCard[]>([])
   const [phrases, setPhrases] = useState<SavedPhrase[]>([])
   const [confirmReset, setConfirmReset] = useState(false)
@@ -52,7 +62,8 @@ export function ProgressScreen() {
     const data = await fetchProgressData()
     setTodaySeconds(data.todaySeconds)
     setTodayTurns(data.todayTurns)
-    setTotalDays(data.totalDays)
+    setDayStreak(data.dayStreak)
+    setXraySummary(data.xraySummary)
     setMistakes(data.mistakes)
     setPhrases(data.phrases)
     setIsLoading(false)
@@ -64,7 +75,8 @@ export function ProgressScreen() {
       if (!active) return
       setTodaySeconds(data.todaySeconds)
       setTodayTurns(data.todayTurns)
-      setTotalDays(data.totalDays)
+      setDayStreak(data.dayStreak)
+      setXraySummary(data.xraySummary)
       setMistakes(data.mistakes)
       setPhrases(data.phrases)
       setIsLoading(false)
@@ -106,7 +118,7 @@ export function ProgressScreen() {
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      {/* Daily & Overall Stats */}
+      {/* Daily & Streak Stats */}
       <section className="grid grid-cols-3 gap-2">
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 text-center">
           <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
@@ -119,9 +131,54 @@ export function ProgressScreen() {
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Turns Today</p>
         </div>
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 text-center">
-          <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{totalDays}</p>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Active Days</p>
+          <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+            🔥 {dayStreak}
+          </p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Day Streak</p>
         </div>
+      </section>
+
+      {/* 4-Skill Audio X-Ray Summary */}
+      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+              Speaking X-Ray
+            </h2>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {xraySummary
+                ? `Average from your last ${xraySummary.sampleCount} speaking turns`
+                : 'Complete 1 voice turn in Coach to see your 4-skill X-Ray'}
+            </p>
+          </div>
+        </div>
+
+        {xraySummary && (
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { label: 'Pronunciation', value: xraySummary.pronunciation },
+              { label: 'Fluency', value: xraySummary.fluency },
+              { label: 'Grammar', value: xraySummary.grammar },
+              { label: 'Confidence', value: xraySummary.confidence },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-2.5"
+              >
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <span className="text-slate-700 dark:text-slate-300">{item.label}</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">{item.value}%</span>
+                </div>
+                <div className="mt-1.5 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-emerald-500 transition-all"
+                    style={{ width: `${item.value}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Tabs: Mistake Cards vs Saved Phrases */}
@@ -208,7 +265,7 @@ export function ProgressScreen() {
         )
       ) : phrases.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 text-center text-xs text-slate-500 dark:text-slate-400">
-          No saved phrases yet. Tap "Save" on any natural phrasing tip in Coach to keep it here.
+          No saved phrases yet. Tap &ldquo;Save&rdquo; on any natural phrasing tip in Coach to keep it here.
         </div>
       ) : (
         <div className="flex flex-col gap-3">
