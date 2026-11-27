@@ -1,4 +1,5 @@
 import { useEffect, useState, type ComponentType } from 'react'
+import { InstallBanner } from './components/InstallBanner'
 import { CoachIcon, HomeIcon, ProgressIcon, SettingsIcon } from './components/NavIcons'
 import { UpdateBanner } from './components/UpdateBanner'
 import { CoachScreen } from './screens/CoachScreen'
@@ -113,6 +114,8 @@ export default function App() {
             )}
           </button>
         </header>
+
+        <InstallBanner />
 
         {/* Scrollable Screen Content */}
         <main className="flex-1 overflow-y-auto">
